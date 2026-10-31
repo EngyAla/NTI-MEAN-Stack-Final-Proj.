@@ -1,0 +1,21 @@
+{
+  "name": "aurelia-atelier-monorepo",
+  "version": "1.0.0",
+  "description": "Aurelia Atelier - Premium Accessories E-Commerce Store",
+  "scripts": {
+    "install:all": "npm --prefix backend install && npm --prefix frontend install",
+    "seed": "npm --prefix backend run seed",
+    "backend": "npm --prefix backend run dev",
+    "frontend": "npm --prefix frontend start"
+  },
+  "keywords": [
+    "angular",
+    "nodejs",
+    "express",
+    "mongodb",
+    "quiet-luxury",
+    "ecommerce"
+  ],
+  "author": "Aurelia Atelier",
+  "license": "ISC"
+}
