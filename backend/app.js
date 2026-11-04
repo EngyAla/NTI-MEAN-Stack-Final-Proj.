@@ -7,6 +7,7 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const itemRoutes = require('./routes/itemRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes');
+const translationRoutes = require('./routes/translationRoutes');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -16,7 +17,7 @@ app.use(
   cors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept-Language'],
   })
 );
 app.use(express.json());
@@ -31,7 +32,7 @@ app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'online',
     brand: 'Aurelia Atelier',
-    version: '1.0.0',
+    version: '1.1.0',
     timestamp: new Date().toISOString(),
   });
 });
@@ -42,6 +43,7 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/items', itemRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/translations', translationRoutes);
 
 // Catch 404
 app.use((req, res, next) => {

@@ -6,20 +6,21 @@ import { CartService } from '../../../core/services/cart.service';
 import { OrderService } from '../../../core/services/order.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Order } from '../../../core/models/ecommerce.model';
+import { TranslatePipe } from '../../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-checkout',
   standalone: true,
-  imports: [CommonModule, RouterModule, ReactiveFormsModule],
+  imports: [CommonModule, RouterModule, ReactiveFormsModule, TranslatePipe],
   template: `
     <div class="checkout-page">
       <!-- Header -->
       <section class="checkout-header">
         <div class="container text-center">
-          <span class="sub-label">White-Glove Order Request</span>
-          <h1 class="page-title">Concierge Checkout</h1>
+          <span class="sub-label">{{ 'navigation.brand' | translate }} {{ 'navigation.brandSub' | translate }}</span>
+          <h1 class="page-title">{{ 'checkout.title' | translate }}</h1>
           <p class="page-desc">
-            Direct atelier arrangement. Provide your contact details and our manager will call you to finalize delivery.
+            {{ 'checkout.desc' | translate }}
           </p>
         </div>
       </section>
@@ -36,11 +37,11 @@ import { Order } from '../../../core/models/ecommerce.model';
               </svg>
             </div>
 
-            <span class="success-tag">Order Submitted Successfully</span>
-            <h2 class="success-title">Thank You, {{ submittedOrder()?.customer?.fullName }}</h2>
+            <span class="success-tag">{{ 'checkout.successTag' | translate }}</span>
+            <h2 class="success-title">{{ 'checkout.successThankYou' | translate }}, {{ submittedOrder()?.customer?.fullName }}</h2>
 
             <div class="order-ref-pill">
-              <span>Order Reference:</span>
+              <span>{{ 'checkout.orderRef' | translate }}:</span>
               <strong>{{ submittedOrder()?.orderNumber }}</strong>
             </div>
 
@@ -51,20 +52,18 @@ import { Order } from '../../../core/models/ecommerce.model';
                 </svg>
               </div>
               <div class="phone-notice-text">
-                <h4>Next Step: Telephone Confirmation</h4>
+                <h4>{{ 'checkout.nextStepTitle' | translate }}</h4>
                 <p>
-                  Your order is currently in <strong>Opened</strong> status. Our atelier executive manager will call you at
-                  <strong>{{ submittedOrder()?.customer?.phone }}</strong>
-                  shortly to confirm your requested pieces, review delivery timing, and accommodate any custom packaging requests.
+                  {{ 'checkout.nextStepDesc' | translate }} (<strong>{{ submittedOrder()?.customer?.phone }}</strong>)
                 </p>
               </div>
             </div>
 
             <div class="submitted-details-box">
-              <h4>Delivery Destination</h4>
+              <h4>{{ 'checkout.address' | translate }}</h4>
               <p>{{ submittedOrder()?.customer?.address }}</p>
               <p *ngIf="submittedOrder()?.customer?.notes" class="order-notes-preview">
-                <em>Special Notes: {{ submittedOrder()?.customer?.notes }}</em>
+                <em>{{ 'checkout.notes' | translate }}: {{ submittedOrder()?.customer?.notes }}</em>
               </p>
 
               <div class="submitted-items-list">
@@ -75,14 +74,14 @@ import { Order } from '../../../core/models/ecommerce.model';
               </div>
 
               <div class="submitted-total-row">
-                <span>Total Amount:</span>
+                <span>{{ 'common.total' | translate }}:</span>
                 <span class="total-bold">\${{ submittedOrder()?.totalPrice | number:'1.2-2' }}</span>
               </div>
             </div>
 
             <div class="success-actions">
-              <a routerLink="/" class="btn btn-primary">Return to Home</a>
-              <a routerLink="/shop" class="btn btn-outline">Explore More Accessories</a>
+              <a routerLink="/" class="btn btn-primary">{{ 'checkout.returnHome' | translate }}</a>
+              <a routerLink="/shop" class="btn btn-outline">{{ 'checkout.exploreMore' | translate }}</a>
             </div>
           </div>
 
@@ -92,15 +91,15 @@ import { Order } from '../../../core/models/ecommerce.model';
               <!-- Customer Information Form -->
               <div class="form-column">
                 <div class="luxury-form-card">
-                  <h3 class="form-title">Client Information</h3>
+                  <h3 class="form-title">{{ 'checkout.clientInfo' | translate }}</h3>
                   <p class="form-subtitle">
-                    Please provide your contact details for telephone verification and direct courier dispatch.
+                    {{ 'checkout.clientDesc' | translate }}
                   </p>
 
                   <form [formGroup]="checkoutForm" (ngSubmit)="submitOrder()">
                     <!-- Full Name -->
                     <div class="form-group">
-                      <label for="fullName">Full Name *</label>
+                      <label for="fullName">{{ 'checkout.fullName' | translate }} *</label>
                       <input
                         type="text"
                         id="fullName"
@@ -110,13 +109,13 @@ import { Order } from '../../../core/models/ecommerce.model';
                         [class.is-invalid]="f['fullName'].touched && f['fullName'].invalid"
                       />
                       <div class="form-error" *ngIf="f['fullName'].touched && f['fullName'].invalid">
-                        Please provide your full name.
+                        {{ 'checkout.fullName' | translate }}
                       </div>
                     </div>
 
                     <!-- Phone Number -->
                     <div class="form-group">
-                      <label for="phone">Phone Number (For Order Confirmation) *</label>
+                      <label for="phone">{{ 'checkout.phone' | translate }}</label>
                       <input
                         type="tel"
                         id="phone"
@@ -125,15 +124,15 @@ import { Order } from '../../../core/models/ecommerce.model';
                         class="form-control"
                         [class.is-invalid]="f['phone'].touched && f['phone'].invalid"
                       />
-                      <div class="form-hint">Our manager will reach out via this telephone number to finalize your order.</div>
+                      <div class="form-hint">{{ 'checkout.phoneHint' | translate }}</div>
                       <div class="form-error" *ngIf="f['phone'].touched && f['phone'].invalid">
-                        A valid phone number is required for concierge confirmation.
+                        {{ 'checkout.phone' | translate }}
                       </div>
                     </div>
 
                     <!-- Delivery Address -->
                     <div class="form-group">
-                      <label for="address">Delivery Address *</label>
+                      <label for="address">{{ 'checkout.address' | translate }} *</label>
                       <textarea
                         id="address"
                         formControlName="address"
@@ -142,13 +141,13 @@ import { Order } from '../../../core/models/ecommerce.model';
                         [class.is-invalid]="f['address'].touched && f['address'].invalid"
                       ></textarea>
                       <div class="form-error" *ngIf="f['address'].touched && f['address'].invalid">
-                        Delivery address is required.
+                        {{ 'checkout.address' | translate }}
                       </div>
                     </div>
 
                     <!-- Optional Notes -->
                     <div class="form-group">
-                      <label for="notes">Delivery Notes or Special Requests (Optional)</label>
+                      <label for="notes">{{ 'checkout.notes' | translate }}</label>
                       <textarea
                         id="notes"
                         formControlName="notes"
@@ -162,8 +161,8 @@ import { Order } from '../../../core/models/ecommerce.model';
                       class="btn btn-primary btn-lg w-100 submit-order-btn"
                       [disabled]="isSubmitting() || checkoutForm.invalid"
                     >
-                      <span *ngIf="!isSubmitting()">Submit Order Request</span>
-                      <span *ngIf="isSubmitting()">Reserving Pieces & Submitting...</span>
+                      <span *ngIf="!isSubmitting()">{{ 'checkout.submitBtn' | translate }}</span>
+                      <span *ngIf="isSubmitting()">{{ 'checkout.submitting' | translate }}</span>
                     </button>
                   </form>
                 </div>
@@ -172,14 +171,14 @@ import { Order } from '../../../core/models/ecommerce.model';
               <!-- Order Summary Sidebar -->
               <div class="summary-column">
                 <div class="review-card">
-                  <h3 class="review-title">Selected Pieces ({{ cartService.cartCount() }})</h3>
+                  <h3 class="review-title">{{ 'cart.selectedPieces' | translate }} ({{ cartService.cartCount() }})</h3>
 
                   <div class="review-items-list">
                     <div class="review-item" *ngFor="let ci of cartService.items()">
                       <img [src]="ci.item.imageUrl" [alt]="ci.item.name" class="review-thumb" />
                       <div class="review-item-info">
                         <span class="review-name">{{ ci.item.name }}</span>
-                        <span class="review-qty">Qty: {{ ci.quantity }}</span>
+                        <span class="review-qty">{{ 'common.qty' | translate }}: {{ ci.quantity }}</span>
                       </div>
                       <span class="review-subtotal">\${{ (ci.item.price * ci.quantity) | number:'1.2-2' }}</span>
                     </div>
@@ -188,17 +187,17 @@ import { Order } from '../../../core/models/ecommerce.model';
                   <div class="review-divider"></div>
 
                   <div class="review-calc-row">
-                    <span>Subtotal</span>
+                    <span>{{ 'cart.subtotal' | translate }}</span>
                     <span class="bold">\${{ cartService.subtotal() | number:'1.2-2' }}</span>
                   </div>
 
                   <div class="review-calc-row">
-                    <span>Concierge Courier</span>
-                    <span class="text-gold">Complimentary</span>
+                    <span>{{ 'cart.delivery' | translate }}</span>
+                    <span class="text-gold">{{ 'cart.deliveryComplimentary' | translate }}</span>
                   </div>
 
                   <div class="review-calc-row total-calc-row">
-                    <span>Order Total</span>
+                    <span>{{ 'cart.total' | translate }}</span>
                     <span class="total-figure">\${{ cartService.totalPrice() | number:'1.2-2' }}</span>
                   </div>
 
@@ -206,7 +205,7 @@ import { Order } from '../../../core/models/ecommerce.model';
                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                     </svg>
-                    <span>Telephone verification ensures high security and personalized service.</span>
+                    <span>{{ 'cart.phoneNote' | translate }}</span>
                   </div>
                 </div>
               </div>

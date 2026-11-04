@@ -1,30 +1,32 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { CategoryService } from '../../../core/services/category.service';
 import { ItemService } from '../../../core/services/item.service';
+import { LanguageService } from '../../../core/services/language.service';
 import { Category, Item } from '../../../core/models/ecommerce.model';
 import { ProductCardComponent } from '../../../shared/components/product-card/product-card.component';
+import { TranslatePipe } from '../../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, RouterModule, ProductCardComponent],
+  imports: [CommonModule, RouterModule, ProductCardComponent, TranslatePipe],
   template: `
     <!-- Editorial Hero Section -->
     <section class="hero-section">
       <div class="hero-overlay"></div>
       <div class="container hero-container">
         <div class="hero-content">
-          <span class="hero-eyebrow">Autumn / Winter 2026 Collection</span>
-          <h1 class="hero-title">The Art of Everyday Elegance</h1>
+          <span class="hero-eyebrow">{{ 'home.hero.eyebrow' | translate }}</span>
+          <h1 class="hero-title">{{ 'home.hero.title' | translate }}</h1>
           <p class="hero-description">
-            Subtle prestige, handcrafted in limited numbers. Explore our bespoke curation of Tuscan leather bags, Swiss calibers, and solid gold heirlooms.
+            {{ 'home.hero.desc' | translate }}
           </p>
           <div class="hero-cta-group">
-            <a routerLink="/shop" class="btn btn-gold btn-lg">Explore Collection</a>
+            <a routerLink="/shop" class="btn btn-gold btn-lg">{{ 'home.hero.cta' | translate }}</a>
             <a routerLink="/shop" [queryParams]="{ featured: 'true' }" class="btn btn-outline-white btn-lg">
-              Featured Pieces
+              {{ 'home.hero.featuredCta' | translate }}
             </a>
           </div>
         </div>
@@ -41,8 +43,8 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
               </svg>
             </div>
-            <h4>Artisan Heritage</h4>
-            <p>Every piece is individually handcrafted in Florence and Geneva by master artisans.</p>
+            <h4>{{ 'home.pillars.artisanTitle' | translate }}</h4>
+            <p>{{ 'home.pillars.artisanDesc' | translate }}</p>
           </div>
 
           <div class="pillar-item">
@@ -51,8 +53,8 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
               </svg>
             </div>
-            <h4>Pure Quiet Luxury</h4>
-            <p>Unadorned with ostentatious logos. Defined by exceptional materiality and proportion.</p>
+            <h4>{{ 'home.pillars.luxuryTitle' | translate }}</h4>
+            <p>{{ 'home.pillars.luxuryDesc' | translate }}</p>
           </div>
 
           <div class="pillar-item">
@@ -61,8 +63,8 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
               </svg>
             </div>
-            <h4>Dedicated Telephone Concierge</h4>
-            <p>Orders are personally confirmed and arranged via phone with our atelier manager.</p>
+            <h4>{{ 'home.pillars.conciergeTitle' | translate }}</h4>
+            <p>{{ 'home.pillars.conciergeDesc' | translate }}</p>
           </div>
 
           <div class="pillar-item">
@@ -72,8 +74,8 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
                 <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
               </svg>
             </div>
-            <h4>Signature Packaging</h4>
-            <p>Delivered in hand-stitched velvet pouches and heavyweight embossed gift boxes.</p>
+            <h4>{{ 'home.pillars.packagingTitle' | translate }}</h4>
+            <p>{{ 'home.pillars.packagingDesc' | translate }}</p>
           </div>
         </div>
       </div>
@@ -83,10 +85,10 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
     <section class="section categories-section">
       <div class="container">
         <div class="section-header">
-          <span class="section-tag">Curated Disciplines</span>
-          <h2 class="section-title">Explore by Category</h2>
+          <span class="section-tag">{{ 'home.categories.tag' | translate }}</span>
+          <h2 class="section-title">{{ 'home.categories.title' | translate }}</h2>
           <p class="section-subtitle">
-            From architectural leather goods to Swiss mechanical horology, discover our distinct departments.
+            {{ 'home.categories.subtitle' | translate }}
           </p>
         </div>
 
@@ -103,11 +105,8 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
             </div>
             <div class="category-card-info">
               <h3 class="cat-name">{{ cat.name }}</h3>
-              <span class="cat-count" *ngIf="cat.itemCount !== undefined">
-                {{ cat.itemCount }} {{ cat.itemCount === 1 ? 'Design' : 'Designs' }}
-              </span>
               <span class="cat-explore-btn">
-                Discover
+                {{ 'product.quickView' | translate }}
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="9 18 15 12 9 6"></polyline>
                 </svg>
@@ -119,7 +118,7 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
         <ng-template #loadingCats>
           <div class="loading-state">
             <div class="spinner"></div>
-            <span>Gathering atelier collections...</span>
+            <span>{{ 'shop.results.showing' | translate }}...</span>
           </div>
         </ng-template>
       </div>
@@ -129,10 +128,10 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
     <section class="section featured-products-section bg-cream">
       <div class="container">
         <div class="section-header">
-          <span class="section-tag">Masterpiece Selection</span>
-          <h2 class="section-title">Featured Creations</h2>
+          <span class="section-tag">{{ 'home.featured.tag' | translate }}</span>
+          <h2 class="section-title">{{ 'home.featured.title' | translate }}</h2>
           <p class="section-subtitle">
-            Icons of the maison, celebrated for their exceptional tactile richness and timeless balance.
+            {{ 'home.featured.subtitle' | translate }}
           </p>
         </div>
 
@@ -143,12 +142,12 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
         <ng-template #loadingItems>
           <div class="loading-state">
             <div class="spinner"></div>
-            <span>Selecting showcase pieces...</span>
+            <span>{{ 'shop.results.showing' | translate }}...</span>
           </div>
         </ng-template>
 
         <div class="text-center mt-5">
-          <a routerLink="/shop" class="btn btn-primary btn-lg">View Complete Catalog</a>
+          <a routerLink="/shop" class="btn btn-primary btn-lg">{{ 'home.featured.viewCatalog' | translate }}</a>
         </div>
       </div>
     </section>
@@ -173,26 +172,26 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
           </div>
 
           <div class="heritage-text">
-            <span class="section-tag">The Philosophy</span>
-            <h2 class="heritage-title">Understated Luxury for the Discerning Connoisseur</h2>
+            <span class="section-tag">{{ 'home.heritage.tag' | translate }}</span>
+            <h2 class="heritage-title">{{ 'home.heritage.title' | translate }}</h2>
             <p class="lead-para">
-              True luxury does not clamor for attention. It speaks in the whisper of hand-buffed calfskin edges, the precise mechanical click of a Swiss deployant clasp, and the warm resonance of 18k solid gold.
+              {{ 'home.heritage.lead' | translate }}
             </p>
             <p class="body-para">
-              At Aurelia Atelier, our creations exist beyond transient seasonal cycles. We employ traditional vegetable tanning methods that allow our leather to develop a luminous patina over decades of personal companionship.
+              {{ 'home.heritage.body' | translate }}
             </p>
             <div class="heritage-metrics">
               <div class="metric">
                 <span class="metric-num">100%</span>
-                <span class="metric-label">Certified Fine Materials</span>
+                <span class="metric-label">{{ 'home.pillars.luxuryTitle' | translate }}</span>
               </div>
               <div class="metric">
                 <span class="metric-num">0</span>
-                <span class="metric-label">Mass Industrial Production</span>
+                <span class="metric-label">{{ 'home.pillars.artisanTitle' | translate }}</span>
               </div>
               <div class="metric">
                 <span class="metric-num">1:1</span>
-                <span class="metric-label">Personal Phone Concierge</span>
+                <span class="metric-label">{{ 'home.pillars.conciergeTitle' | translate }}</span>
               </div>
             </div>
           </div>
@@ -210,13 +209,13 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
             </svg>
           </div>
           <div class="concierge-content">
-            <h3 class="concierge-heading">Personal Telephone Ordering Service</h3>
+            <h3 class="concierge-heading">{{ 'home.conciergeBanner.title' | translate }}</h3>
             <p class="concierge-text">
-              No online card payments required. Submit your bag selection, and our private concierge manager will reach out directly to review sizing, delivery schedule, and gift packaging options.
+              {{ 'home.conciergeBanner.desc' | translate }}
             </p>
           </div>
           <div class="concierge-action">
-            <a routerLink="/shop" class="btn btn-gold">Browse Collection</a>
+            <a routerLink="/shop" class="btn btn-gold">{{ 'home.conciergeBanner.btn' | translate }}</a>
           </div>
         </div>
       </div>
@@ -653,17 +652,42 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
           grid-template-columns: 1fr;
         }
       }
+
+      :host-context([dir="rtl"]) .hero-overlay,
+      [dir="rtl"] .hero-overlay {
+        background: linear-gradient(
+          to left,
+          rgba(28, 22, 17, 0.88) 0%,
+          rgba(28, 22, 17, 0.65) 50%,
+          rgba(28, 22, 17, 0.35) 100%
+        );
+      }
     `,
   ],
 })
 export class HomeComponent implements OnInit {
   private categoryService = inject(CategoryService);
   private itemService = inject(ItemService);
+  private languageService = inject(LanguageService);
 
   categories = signal<Category[]>([]);
   featuredItems = signal<Item[]>([]);
 
+  constructor() {
+    // Whenever language changes, re-fetch categories & featured items in the new language
+    effect(() => {
+      const currentLang = this.languageService.currentLang();
+      if (currentLang) {
+        this.loadCatalogData();
+      }
+    });
+  }
+
   ngOnInit() {
+    this.loadCatalogData();
+  }
+
+  loadCatalogData() {
     this.categoryService.getCategories().subscribe({
       next: (cats) => this.categories.set(cats),
       error: (err) => console.error('Failed to load categories', err),

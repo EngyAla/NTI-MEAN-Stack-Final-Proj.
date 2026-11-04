@@ -79,13 +79,13 @@ export class ItemService {
     return this.http.post<CartValidationResult>(`${this.baseUrl}/validate-cart`, { items: cartItems });
   }
 
-  createItem(itemData: Partial<Item>): Observable<Item> {
+  createItem(itemData: any): Observable<Item> {
     return this.http
       .post<ApiResponse<Item>>(this.baseUrl, itemData)
       .pipe(map((res) => res.data));
   }
 
-  updateItem(id: string, itemData: Partial<Item>): Observable<Item> {
+  updateItem(id: string, itemData: any): Observable<Item> {
     return this.http
       .put<ApiResponse<Item>>(`${this.baseUrl}/${id}`, itemData)
       .pipe(map((res) => res.data));

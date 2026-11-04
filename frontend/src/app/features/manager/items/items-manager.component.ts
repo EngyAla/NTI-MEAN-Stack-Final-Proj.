@@ -1,23 +1,25 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ItemService } from '../../../core/services/item.service';
 import { CategoryService } from '../../../core/services/category.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { LanguageService } from '../../../core/services/language.service';
 import { Item, Category } from '../../../core/models/ecommerce.model';
+import { TranslatePipe } from '../../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-items-manager',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, TranslatePipe],
   template: `
     <div class="items-manager">
       <!-- Title Row -->
       <div class="title-row">
         <div>
-          <h1 class="page-title">Items & Inventory Management</h1>
+          <h1 class="page-title">{{ 'manager.items.title' | translate }}</h1>
           <p class="page-desc">
-            Manage accessories catalog, set prices, and monitor backend stock reserves.
+            {{ 'manager.items.desc' | translate }}
           </p>
         </div>
 
@@ -26,7 +28,7 @@ import { Item, Category } from '../../../core/models/ecommerce.model';
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
-          Add New Item
+          {{ 'manager.items.addBtn' | translate }}
         </button>
       </div>
 
@@ -35,13 +37,13 @@ import { Item, Category } from '../../../core/models/ecommerce.model';
         <div class="filter-inputs">
           <!-- Category Filter -->
           <div class="filter-group">
-            <label>Filter by Category</label>
+            <label>{{ 'manager.items.category' | translate }}</label>
             <select
               class="form-control filter-select"
               [value]="selectedCatFilter()"
               (change)="onCategoryFilterChange($event)"
             >
-              <option value="">All Categories</option>
+              <option value="">{{ 'shop.filters.all' | translate }}</option>
               <option *ngFor="let cat of categories()" [value]="cat._id">
                 {{ cat.name }}
               </option>
@@ -50,11 +52,11 @@ import { Item, Category } from '../../../core/models/ecommerce.model';
 
           <!-- Search Filter -->
           <div class="filter-group flex-1">
-            <label>Search Accessories</label>
+            <label>{{ 'shop.filters.searchPlaceholder' | translate }}</label>
             <div class="search-wrap">
               <input
                 type="text"
-                placeholder="Search by piece title or description..."
+                [placeholder]="'shop.filters.searchPlaceholder' | translate"
                 class="form-control"
                 [value]="searchKeyword()"
                 (input)="onSearchInput($event)"
@@ -65,7 +67,7 @@ import { Item, Category } from '../../../core/models/ecommerce.model';
 
         <div class="filter-status-row">
           <span class="count-tag">
-            Total Inventory: {{ items().length }} {{ items().length === 1 ? 'Piece' : 'Pieces' }}
+            {{ 'manager.stats.items' | translate }}: {{ items().length }} {{ 'shop.results.designs' | translate }}
           </span>
           <span class="stock-badge-note">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -84,12 +86,12 @@ import { Item, Category } from '../../../core/models/ecommerce.model';
             <thead>
               <tr>
                 <th style="width: 70px;">Piece</th>
-                <th>Title & Details</th>
-                <th>Department</th>
-                <th>Price</th>
-                <th style="text-align: center;">Stock Quantity</th>
-                <th>Featured</th>
-                <th style="text-align: right;">Actions</th>
+                <th>{{ 'manager.items.nameEn' | translate }}</th>
+                <th>{{ 'manager.items.category' | translate }}</th>
+                <th>{{ 'common.price' | translate }}</th>
+                <th style="text-align: center;">{{ 'manager.items.quantity' | translate }}</th>
+                <th>{{ 'common.status' | translate }}</th>
+                <th style="text-align: right;">{{ 'common.actions' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -99,6 +101,9 @@ import { Item, Category } from '../../../core/models/ecommerce.model';
                 </td>
                 <td>
                   <strong class="item-name-bold">{{ itm.name }}</strong>
+                  <div class="bilingual-sub" *ngIf="itm.nameObj?.ar && itm.nameObj?.en">
+                    <span class="sub-pill">{{ itm.nameObj?.en }}</span> | <span class="sub-pill">{{ itm.nameObj?.ar }}</span>
+                  </div>
                   <span class="item-sub-desc">{{ itm.description | slice:0:75 }}...</span>
                 </td>
                 <td>
@@ -116,7 +121,7 @@ import { Item, Category } from '../../../core/models/ecommerce.model';
                       'badge-neutral': (itm.quantity || 0) === 0
                     }"
                   >
-                    {{ itm.quantity }} units in stock
+                    {{ itm.quantity }} {{ 'manager.items.unitsInStock' | translate }}
                   </span>
                 </td>
                 <td>
@@ -129,17 +134,17 @@ import { Item, Category } from '../../../core/models/ecommerce.model';
                       type="button"
                       class="btn btn-outline btn-sm"
                       (click)="openEditModal(itm)"
-                      title="Edit Item"
+                      [title]="'common.edit' | translate"
                     >
-                      Edit
+                      {{ 'common.edit' | translate }}
                     </button>
                     <button
                       type="button"
                       class="btn btn-ghost btn-sm delete-btn"
                       (click)="confirmDelete(itm)"
-                      title="Delete Item"
+                      [title]="'common.delete' | translate"
                     >
-                      Delete
+                      {{ 'common.delete' | translate }}
                     </button>
                   </div>
                 </td>
@@ -159,7 +164,7 @@ import { Item, Category } from '../../../core/models/ecommerce.model';
       <div class="modal-backdrop" *ngIf="showModal()">
         <div class="modal-dialog modal-lg">
           <div class="modal-header">
-            <h3>{{ isEditing() ? 'Edit Item Details' : 'Add New Luxury Accessory' }}</h3>
+            <h3>{{ isEditing() ? (('common.edit' | translate) + ' ' + ('manager.stats.items' | translate)) : ('manager.items.addBtn' | translate) }}</h3>
             <button type="button" class="btn btn-ghost btn-sm close-modal-btn" (click)="closeModal()">
               &times;
             </button>
@@ -167,24 +172,44 @@ import { Item, Category } from '../../../core/models/ecommerce.model';
 
           <form [formGroup]="itemForm" (ngSubmit)="saveItem()">
             <div class="modal-body modal-grid-body">
-              <!-- Item Name -->
-              <div class="form-group full-width">
-                <label for="name">Item Name *</label>
-                <input
-                  type="text"
-                  id="name"
-                  formControlName="name"
-                  placeholder="e.g. Palazzo Saffiano Leather Tote"
-                  class="form-control"
-                />
-                <div class="form-error" *ngIf="f['name'].touched && f['name'].invalid">
-                  Name is required.
+              <!-- Bilingual Item Names -->
+              <div class="form-row-2 full-width">
+                <!-- English Name -->
+                <div class="form-group">
+                  <label for="nameEn">{{ 'manager.items.nameEn' | translate }}</label>
+                  <input
+                    type="text"
+                    id="nameEn"
+                    formControlName="nameEn"
+                    placeholder="e.g. Palazzo Saffiano Leather Tote"
+                    class="form-control"
+                    [class.is-invalid]="f['nameEn'].touched && f['nameEn'].invalid"
+                  />
+                  <div class="form-error" *ngIf="f['nameEn'].touched && f['nameEn'].invalid">
+                    English name is required (min 2 characters).
+                  </div>
+                </div>
+
+                <!-- Arabic Name -->
+                <div class="form-group" dir="rtl">
+                  <label for="nameAr">{{ 'manager.items.nameAr' | translate }}</label>
+                  <input
+                    type="text"
+                    id="nameAr"
+                    formControlName="nameAr"
+                    placeholder="مثال: حقيبة بالاتزو من جلد سافيانو"
+                    class="form-control"
+                    [class.is-invalid]="f['nameAr'].touched && f['nameAr'].invalid"
+                  />
+                  <div class="form-error" *ngIf="f['nameAr'].touched && f['nameAr'].invalid">
+                    Arabic name is required (min 2 characters).
+                  </div>
                 </div>
               </div>
 
               <!-- Category -->
               <div class="form-group">
-                <label for="category">Category *</label>
+                <label for="category">{{ 'manager.items.category' | translate }}</label>
                 <select id="category" formControlName="category" class="form-control">
                   <option value="" disabled>Select Department</option>
                   <option *ngFor="let cat of categories()" [value]="cat._id">
@@ -198,7 +223,7 @@ import { Item, Category } from '../../../core/models/ecommerce.model';
 
               <!-- Price -->
               <div class="form-group">
-                <label for="price">Price ($ USD) *</label>
+                <label for="price">{{ 'manager.items.price' | translate }}</label>
                 <input
                   type="number"
                   id="price"
@@ -215,7 +240,7 @@ import { Item, Category } from '../../../core/models/ecommerce.model';
 
               <!-- Quantity (Stock) -->
               <div class="form-group">
-                <label for="quantity">Stock Quantity (Private to Manager) *</label>
+                <label for="quantity">{{ 'manager.items.quantity' | translate }}</label>
                 <input
                   type="number"
                   id="quantity"
@@ -233,13 +258,13 @@ import { Item, Category } from '../../../core/models/ecommerce.model';
               <div class="form-group checkbox-group">
                 <label class="custom-checkbox">
                   <input type="checkbox" formControlName="isFeatured" />
-                  <span>Highlight as Featured Masterpiece on Home Page</span>
+                  <span>{{ 'manager.items.featured' | translate }}</span>
                 </label>
               </div>
 
               <!-- Primary Image URL -->
               <div class="form-group full-width">
-                <label for="imageUrl">Primary Image URL (Accessories Photography Only) *</label>
+                <label for="imageUrl">{{ 'manager.items.image' | translate }}</label>
                 <input
                   type="url"
                   id="imageUrl"
@@ -263,21 +288,36 @@ import { Item, Category } from '../../../core/models/ecommerce.model';
                 </div>
               </div>
 
-              <!-- Material & Finish -->
-              <div class="form-group">
-                <label for="material">Material & Craftsmanship Spec</label>
-                <input
-                  type="text"
-                  id="material"
-                  formControlName="material"
-                  placeholder="e.g. Full-Grain Tuscan Calfskin / 18k Champagne Gold"
-                  class="form-control"
-                />
+              <!-- Bilingual Material & Finish -->
+              <div class="form-row-2 full-width">
+                <!-- English Material -->
+                <div class="form-group">
+                  <label for="materialEn">{{ 'manager.items.materialEn' | translate }}</label>
+                  <input
+                    type="text"
+                    id="materialEn"
+                    formControlName="materialEn"
+                    placeholder="e.g. Full-Grain Tuscan Calfskin / 18k Champagne Gold"
+                    class="form-control"
+                  />
+                </div>
+
+                <!-- Arabic Material -->
+                <div class="form-group" dir="rtl">
+                  <label for="materialAr">{{ 'manager.items.materialAr' | translate }}</label>
+                  <input
+                    type="text"
+                    id="materialAr"
+                    formControlName="materialAr"
+                    placeholder="مثال: جلد العجل التوسكاني الفاخر / ذهب شامبانيا عيار 18"
+                    class="form-control"
+                  />
+                </div>
               </div>
 
               <!-- Dimensions & Fit -->
-              <div class="form-group">
-                <label for="dimensions">Dimensions</label>
+              <div class="form-group full-width">
+                <label for="dimensions">{{ 'manager.items.dimensions' | translate }}</label>
                 <input
                   type="text"
                   id="dimensions"
@@ -287,30 +327,50 @@ import { Item, Category } from '../../../core/models/ecommerce.model';
                 />
               </div>
 
-              <!-- Description -->
-              <div class="form-group full-width">
-                <label for="description">Item Description *</label>
-                <textarea
-                  id="description"
-                  formControlName="description"
-                  placeholder="Elaborate editorial copy regarding aesthetics, leather grade, interior lining, and hardware..."
-                  class="form-control"
-                  style="min-height: 100px;"
-                ></textarea>
-                <div class="form-error" *ngIf="f['description'].touched && f['description'].invalid">
-                  Description is required.
+              <!-- Bilingual Descriptions -->
+              <div class="form-row-2 full-width">
+                <!-- English Description -->
+                <div class="form-group">
+                  <label for="descEn">{{ 'manager.items.descEn' | translate }}</label>
+                  <textarea
+                    id="descEn"
+                    formControlName="descriptionEn"
+                    placeholder="Elaborate editorial copy regarding aesthetics, leather grade, interior lining, and hardware..."
+                    class="form-control"
+                    style="min-height: 90px;"
+                    [class.is-invalid]="f['descriptionEn'].touched && f['descriptionEn'].invalid"
+                  ></textarea>
+                  <div class="form-error" *ngIf="f['descriptionEn'].touched && f['descriptionEn'].invalid">
+                    English description is required.
+                  </div>
+                </div>
+
+                <!-- Arabic Description -->
+                <div class="form-group" dir="rtl">
+                  <label for="descAr">{{ 'manager.items.descAr' | translate }}</label>
+                  <textarea
+                    id="descAr"
+                    formControlName="descriptionAr"
+                    placeholder="وصف تحريري باللغة العربية حول التصميم ونوع الجلد والبطانة الداخلية والتفاصيل الدقيقة..."
+                    class="form-control"
+                    style="min-height: 90px;"
+                    [class.is-invalid]="f['descriptionAr'].touched && f['descriptionAr'].invalid"
+                  ></textarea>
+                  <div class="form-error" *ngIf="f['descriptionAr'].touched && f['descriptionAr'].invalid">
+                    Arabic description is required.
+                  </div>
                 </div>
               </div>
             </div>
 
             <div class="modal-footer">
-              <button type="button" class="btn btn-ghost" (click)="closeModal()">Cancel</button>
+              <button type="button" class="btn btn-ghost" (click)="closeModal()">{{ 'common.cancel' | translate }}</button>
               <button
                 type="submit"
                 class="btn btn-gold"
                 [disabled]="isSaving() || itemForm.invalid"
               >
-                <span *ngIf="!isSaving()">{{ isEditing() ? 'Save Changes' : 'Create Item' }}</span>
+                <span *ngIf="!isSaving()">{{ 'common.save' | translate }}</span>
                 <span *ngIf="isSaving()">Saving...</span>
               </button>
             </div>
@@ -346,8 +406,8 @@ import { Item, Category } from '../../../core/models/ecommerce.model';
         background-color: #ffffff;
         border: 1px solid var(--color-border);
         border-radius: var(--radius-sm);
-        padding: 1.5rem;
-        margin-bottom: 2rem;
+        padding: 1.25rem 1.5rem;
+        margin-bottom: 1.5rem;
       }
 
       .filter-inputs {
@@ -360,40 +420,32 @@ import { Item, Category } from '../../../core/models/ecommerce.model';
       .filter-group {
         display: flex;
         flex-direction: column;
+        gap: 0.4rem;
 
         label {
-          font-size: 0.75rem;
+          font-size: 0.78rem;
           font-weight: 600;
           text-transform: uppercase;
-          letter-spacing: 0.1em;
-          color: var(--color-text-muted);
-          margin-bottom: 0.4rem;
-        }
-
-        &.flex-1 {
-          flex: 1;
-          min-width: 250px;
+          letter-spacing: 0.08em;
+          color: var(--color-text-secondary);
         }
       }
 
       .filter-select {
-        min-width: 220px;
+        min-width: 200px;
       }
 
       .filter-status-row {
         display: flex;
-        align-items: center;
         justify-content: space-between;
-        margin-top: 1.25rem;
-        padding-top: 1rem;
+        align-items: center;
+        margin-top: 1rem;
+        padding-top: 0.85rem;
         border-top: 1px solid var(--color-border-subtle);
-        font-size: 0.8rem;
-      }
-
-      .count-tag {
-        color: var(--color-text-muted);
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
+        font-size: 0.82rem;
+        color: var(--color-text-secondary);
+        flex-wrap: wrap;
+        gap: 0.5rem;
       }
 
       .stock-badge-note {
@@ -412,10 +464,10 @@ import { Item, Category } from '../../../core/models/ecommerce.model';
       }
 
       .item-table-thumb {
-        width: 54px;
-        height: 54px;
-        object-fit: cover;
+        width: 52px;
+        height: 52px;
         border-radius: var(--radius-sm);
+        object-fit: cover;
         background-color: #faf7f2;
         border: 1px solid var(--color-border);
       }
@@ -423,23 +475,32 @@ import { Item, Category } from '../../../core/models/ecommerce.model';
       .item-name-bold {
         display: block;
         color: var(--color-espresso);
-        font-size: 0.92rem;
-        line-height: 1.3;
+      }
+
+      .bilingual-sub {
+        font-size: 0.72rem;
+        color: var(--color-text-muted);
+        margin: 0.15rem 0;
+      }
+
+      .sub-pill {
+        display: inline-block;
       }
 
       .item-sub-desc {
         display: block;
         font-size: 0.78rem;
         color: var(--color-text-muted);
-        margin-top: 0.2rem;
+        line-height: 1.3;
       }
 
       .category-tag-badge {
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--color-text-secondary);
+        font-size: 0.78rem;
+        padding: 0.2rem 0.6rem;
+        background-color: var(--color-canvas);
+        border-radius: var(--radius-sm);
+        color: var(--color-espresso);
+        border: 1px solid var(--color-border);
       }
 
       .action-buttons {
@@ -462,39 +523,38 @@ import { Item, Category } from '../../../core/models/ecommerce.model';
 
       /* Modal styling */
       .modal-dialog.modal-lg {
-        max-width: 780px;
+        max-width: 820px;
       }
 
       .modal-grid-body {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 1.25rem;
+        gap: 1rem 1.25rem;
+      }
 
-        .full-width {
-          grid-column: span 2;
-        }
+      .form-row-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+
+      .full-width {
+        grid-column: 1 / -1;
       }
 
       .checkbox-group {
         display: flex;
         align-items: center;
-        margin-top: 1.5rem;
+        padding-top: 1.7rem;
       }
 
       .custom-checkbox {
-        display: flex;
+        display: inline-flex;
         align-items: center;
         gap: 0.6rem;
-        font-size: 0.85rem;
         cursor: pointer;
+        font-size: 0.88rem;
         color: var(--color-espresso);
-
-        input[type='checkbox'] {
-          width: 18px;
-          height: 18px;
-          accent-color: var(--color-gold);
-          cursor: pointer;
-        }
       }
 
       .preview-box {
@@ -509,8 +569,8 @@ import { Item, Category } from '../../../core/models/ecommerce.model';
         .preview-title {
           font-size: 0.75rem;
           text-transform: uppercase;
-          font-weight: 600;
           color: var(--color-text-muted);
+          font-weight: 600;
         }
 
         .preview-img {
@@ -518,46 +578,80 @@ import { Item, Category } from '../../../core/models/ecommerce.model';
           height: 70px;
           object-fit: cover;
           border-radius: var(--radius-sm);
+          border: 1px solid var(--color-border);
+        }
+      }
+
+      .close-modal-btn {
+        font-size: 1.5rem;
+        padding: 0.2rem 0.5rem;
+        line-height: 1;
+      }
+
+      @media (max-width: 680px) {
+        .modal-grid-body,
+        .form-row-2 {
+          grid-template-columns: 1fr;
+        }
+        .full-width {
+          grid-column: 1;
         }
       }
     `,
   ],
 })
 export class ItemsManagerComponent implements OnInit {
+  private fb = inject(FormBuilder);
   private itemService = inject(ItemService);
   private categoryService = inject(CategoryService);
   private toastService = inject(ToastService);
-  private fb = inject(FormBuilder);
+  private languageService = inject(LanguageService);
 
-  items = signal<Item[]>([]);
   categories = signal<Category[]>([]);
+  items = signal<Item[]>([]);
   showModal = signal(false);
   isEditing = signal(false);
   isSaving = signal(false);
+
+  selectedCatFilter = signal('');
+  searchKeyword = signal('');
+
   editingId: string | null = null;
+  itemForm!: FormGroup;
 
-  selectedCatFilter = signal<string>('');
-  searchKeyword = signal<string>('');
+  constructor() {
+    this.itemForm = this.fb.group({
+      nameEn: ['', [Validators.required, Validators.minLength(2)]],
+      nameAr: ['', [Validators.required, Validators.minLength(2)]],
+      descriptionEn: ['', [Validators.required, Validators.minLength(5)]],
+      descriptionAr: ['', [Validators.required, Validators.minLength(5)]],
+      price: [null, [Validators.required, Validators.min(0)]],
+      quantity: [10, [Validators.required, Validators.min(0)]],
+      category: ['', [Validators.required]],
+      imageUrl: ['', [Validators.required]],
+      materialEn: [''],
+      materialAr: [''],
+      dimensions: [''],
+      isFeatured: [false],
+    });
 
-  itemForm: FormGroup = this.fb.group({
-    name: ['', [Validators.required, Validators.minLength(2)]],
-    description: ['', [Validators.required]],
-    price: [null, [Validators.required, Validators.min(0)]],
-    quantity: [0, [Validators.required, Validators.min(0)]],
-    category: ['', [Validators.required]],
-    imageUrl: ['', [Validators.required]],
-    material: [''],
-    dimensions: [''],
-    isFeatured: [false],
-  });
-
-  get f() {
-    return this.itemForm.controls;
+    // Reactive table reload on language switch without losing unsaved modal form data
+    effect(() => {
+      const currentLang = this.languageService.currentLang();
+      if (currentLang) {
+        this.loadCategories();
+        this.loadItems();
+      }
+    });
   }
 
   ngOnInit() {
     this.loadCategories();
     this.loadItems();
+  }
+
+  get f() {
+    return this.itemForm.controls;
   }
 
   loadCategories() {
@@ -599,13 +693,16 @@ export class ItemsManagerComponent implements OnInit {
     this.isEditing.set(false);
     this.editingId = null;
     this.itemForm.reset({
-      name: '',
-      description: '',
+      nameEn: '',
+      nameAr: '',
+      descriptionEn: '',
+      descriptionAr: '',
       price: null,
       quantity: 10,
       category: this.categories().length > 0 ? this.categories()[0]._id : '',
       imageUrl: '',
-      material: 'Full-Grain Italian Calfskin / 18k Gilded Brass',
+      materialEn: 'Full-Grain Italian Calfskin / 18k Gilded Brass',
+      materialAr: 'جلد العجل الإيطالي الفاخر / نحاس مطلي بالذهب عيار 18',
       dimensions: 'Standard Luxury Specification',
       isFeatured: false,
     });
@@ -617,15 +714,24 @@ export class ItemsManagerComponent implements OnInit {
     this.editingId = item._id;
 
     const catId = typeof item.category === 'object' ? item.category._id : item.category;
+    const enName = item.nameObj?.en || (typeof item.name === 'string' ? item.name : '');
+    const arName = item.nameObj?.ar || (typeof item.name === 'string' ? item.name : '');
+    const enDesc = item.descriptionObj?.en || (typeof item.description === 'string' ? item.description : '');
+    const arDesc = item.descriptionObj?.ar || (typeof item.description === 'string' ? item.description : '');
+    const enMat = item.materialObj?.en || (typeof item.material === 'string' ? item.material : '');
+    const arMat = item.materialObj?.ar || (typeof item.material === 'string' ? item.material : '');
 
     this.itemForm.setValue({
-      name: item.name,
-      description: item.description,
+      nameEn: enName,
+      nameAr: arName,
+      descriptionEn: enDesc,
+      descriptionAr: arDesc,
       price: item.price,
       quantity: item.quantity !== undefined ? item.quantity : 0,
       category: catId,
       imageUrl: item.imageUrl,
-      material: item.material || '',
+      materialEn: enMat,
+      materialAr: arMat,
       dimensions: item.dimensions || '',
       isFeatured: !!item.isFeatured,
     });
@@ -645,8 +751,35 @@ export class ItemsManagerComponent implements OnInit {
     this.isSaving.set(true);
     const formVal = this.itemForm.value;
 
+    const payload = {
+      name: {
+        en: formVal.nameEn.trim(),
+        ar: formVal.nameAr.trim(),
+      },
+      nameEn: formVal.nameEn.trim(),
+      nameAr: formVal.nameAr.trim(),
+      description: {
+        en: formVal.descriptionEn.trim(),
+        ar: formVal.descriptionAr.trim(),
+      },
+      descriptionEn: formVal.descriptionEn.trim(),
+      descriptionAr: formVal.descriptionAr.trim(),
+      material: {
+        en: (formVal.materialEn || '').trim(),
+        ar: (formVal.materialAr || '').trim(),
+      },
+      materialEn: (formVal.materialEn || '').trim(),
+      materialAr: (formVal.materialAr || '').trim(),
+      price: Number(formVal.price),
+      quantity: Number(formVal.quantity),
+      category: formVal.category,
+      imageUrl: formVal.imageUrl.trim(),
+      dimensions: formVal.dimensions ? formVal.dimensions.trim() : '',
+      isFeatured: !!formVal.isFeatured,
+    };
+
     if (this.isEditing() && this.editingId) {
-      this.itemService.updateItem(this.editingId, formVal).subscribe({
+      this.itemService.updateItem(this.editingId, payload).subscribe({
         next: (res) => {
           this.isSaving.set(false);
           this.toastService.success(`Item "${res.name}" updated successfully.`);
@@ -660,7 +793,7 @@ export class ItemsManagerComponent implements OnInit {
         },
       });
     } else {
-      this.itemService.createItem(formVal).subscribe({
+      this.itemService.createItem(payload).subscribe({
         next: (res) => {
           this.isSaving.set(false);
           this.toastService.success(`Item "${res.name}" created successfully.`);

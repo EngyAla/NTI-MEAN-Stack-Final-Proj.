@@ -2,18 +2,20 @@ import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { TranslatePipe } from '../../core/pipes/translate.pipe';
+import { LanguageSwitcherComponent } from '../../shared/components/language-switcher/language-switcher.component';
 
 @Component({
   selector: 'app-manager-layout',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslatePipe, LanguageSwitcherComponent],
   template: `
     <div class="manager-layout">
       <!-- Dashboard Sidebar -->
       <aside class="dashboard-sidebar">
         <!-- Sidebar Brand -->
         <div class="sidebar-header">
-          <span class="badge-role">Manager Console</span>
+          <span class="badge-role">{{ 'manager.loginBadge' | translate }}</span>
           <h2 class="sidebar-brand">AURELIA</h2>
           <span class="sidebar-sub">ATELIER EXECUTIVE</span>
         </div>
@@ -32,7 +34,7 @@ import { AuthService } from '../../core/services/auth.service';
               <rect x="14" y="14" width="7" height="7"></rect>
               <rect x="3" y="14" width="7" height="7"></rect>
             </svg>
-            <span>Overview</span>
+            <span>{{ 'manager.nav.overview' | translate }}</span>
           </a>
 
           <a
@@ -44,7 +46,7 @@ import { AuthService } from '../../core/services/auth.service';
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
             </svg>
-            <span>Categories</span>
+            <span>{{ 'manager.nav.categories' | translate }}</span>
           </a>
 
           <a
@@ -57,7 +59,7 @@ import { AuthService } from '../../core/services/auth.service';
               <polyline points="2 17 12 22 22 17"></polyline>
               <polyline points="2 12 12 17 22 12"></polyline>
             </svg>
-            <span>Items & Inventory</span>
+            <span>{{ 'manager.nav.items' | translate }}</span>
           </a>
 
           <a
@@ -71,7 +73,7 @@ import { AuthService } from '../../core/services/auth.service';
               <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
               <line x1="12" y1="22.08" x2="12" y2="12"></line>
             </svg>
-            <span>Orders Management</span>
+            <span>{{ 'manager.nav.orders' | translate }}</span>
           </a>
         </nav>
 
@@ -83,7 +85,7 @@ import { AuthService } from '../../core/services/auth.service';
               <polyline points="15 3 21 3 21 9"></polyline>
               <line x1="10" y1="14" x2="21" y2="3"></line>
             </svg>
-            <span>View Public Store</span>
+            <span>{{ 'manager.nav.viewStore' | translate }}</span>
           </a>
 
           <button type="button" class="logout-btn" (click)="authService.logout()">
@@ -92,7 +94,7 @@ import { AuthService } from '../../core/services/auth.service';
               <polyline points="16 17 21 12 16 7"></polyline>
               <line x1="21" y1="12" x2="9" y2="12"></line>
             </svg>
-            <span>Sign Out</span>
+            <span>{{ 'manager.nav.signOut' | translate }}</span>
           </button>
         </div>
       </aside>
@@ -102,13 +104,6 @@ import { AuthService } from '../../core/services/auth.service';
         <!-- Top Navigation Bar -->
         <header class="top-nav">
           <div class="top-nav-left">
-            <span class="live-indicator">
-              <span class="dot"></span>
-              Live Database Connected
-            </span>
-          </div>
-
-          <div class="top-nav-right">
             <div class="manager-profile">
               <div class="avatar-circle">M</div>
               <div class="profile-info">
@@ -116,6 +111,11 @@ import { AuthService } from '../../core/services/auth.service';
                 <span class="profile-role">Executive Administrator</span>
               </div>
             </div>
+          </div>
+
+          <div class="top-nav-right">
+            <!-- Language Switcher in Manager Dashboard -->
+            <app-language-switcher></app-language-switcher>
           </div>
         </header>
 

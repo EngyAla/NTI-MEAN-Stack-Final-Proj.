@@ -4,28 +4,34 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, ActivatedRoute, RouterModule } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { TranslatePipe } from '../../../core/pipes/translate.pipe';
+import { LanguageSwitcherComponent } from '../../../shared/components/language-switcher/language-switcher.component';
 
 @Component({
   selector: 'app-manager-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslatePipe, LanguageSwitcherComponent],
   template: `
     <div class="manager-login-page">
       <div class="login-card">
+        <div class="login-lang-row">
+          <app-language-switcher></app-language-switcher>
+        </div>
+
         <div class="brand-header">
-          <span class="portal-badge">Atelier Management Portal</span>
-          <h1 class="brand-title">AURELIA</h1>
-          <span class="brand-subtitle">EXECUTIVE CONSOLE</span>
+          <span class="portal-badge">{{ 'manager.loginBadge' | translate }}</span>
+          <h1 class="brand-title">{{ 'manager.loginTitle' | translate }}</h1>
+          <span class="brand-subtitle">{{ 'manager.loginSubtitle' | translate }}</span>
         </div>
 
         <p class="login-intro">
-          Authorized personnel only. Enter your credentials to access the private inventory and client order dashboard.
+          {{ 'manager.loginIntro' | translate }}
         </p>
 
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
           <!-- Email Field -->
           <div class="form-group">
-            <label for="email">Manager Email</label>
+            <label for="email">{{ 'manager.emailLabel' | translate }}</label>
             <input
               type="email"
               id="email"
@@ -41,7 +47,7 @@ import { ToastService } from '../../../core/services/toast.service';
 
           <!-- Password Field -->
           <div class="form-group">
-            <label for="password">Password</label>
+            <label for="password">{{ 'manager.passwordLabel' | translate }}</label>
             <input
               type="password"
               id="password"
@@ -69,14 +75,14 @@ import { ToastService } from '../../../core/services/toast.service';
             class="btn btn-gold btn-lg w-100 signin-btn"
             [disabled]="isLoading() || loginForm.invalid"
           >
-            <span *ngIf="!isLoading()">Authenticate & Enter</span>
+            <span *ngIf="!isLoading()">{{ 'manager.loginBtn' | translate }}</span>
             <span *ngIf="isLoading()">Verifying Credentials...</span>
           </button>
         </form>
 
         <div class="login-footer">
           <a routerLink="/" class="back-link">
-            &larr; Return to Public Storefront
+            &larr; {{ 'manager.returnStore' | translate }}
           </a>
         </div>
       </div>
@@ -96,6 +102,12 @@ import { ToastService } from '../../../core/services/toast.service';
         align-items: center;
         justify-content: center;
         padding: 2rem;
+      }
+
+      .login-lang-row {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 0.5rem;
       }
 
       .login-card {

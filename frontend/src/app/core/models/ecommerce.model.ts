@@ -1,8 +1,20 @@
+export interface BilingualText {
+  en: string;
+  ar: string;
+}
+
 export interface Category {
   _id: string;
   name: string;
+  nameEn?: string;
+  nameAr?: string;
+  nameObj?: BilingualText;
   description?: string;
+  descriptionEn?: string;
+  descriptionAr?: string;
+  descriptionObj?: BilingualText;
   imageUrl?: string;
+  image?: string;
   itemCount?: number;
   createdAt?: string;
   updatedAt?: string;
@@ -11,13 +23,24 @@ export interface Category {
 export interface Item {
   _id: string;
   name: string;
+  nameEn?: string;
+  nameAr?: string;
+  nameObj?: BilingualText;
   description: string;
+  descriptionEn?: string;
+  descriptionAr?: string;
+  descriptionObj?: BilingualText;
   price: number;
   quantity?: number; // Only returned/visible in Manager dashboard
-  category: Category | { _id: string; name: string };
+  category: string | Category | { _id: string; name: string };
+  categoryName?: string;
   imageUrl: string;
+  image?: string;
   images?: string[];
   material?: string;
+  materialEn?: string;
+  materialAr?: string;
+  materialObj?: BilingualText;
   dimensions?: string;
   isFeatured?: boolean;
   createdAt?: string;
@@ -34,10 +57,12 @@ export interface CustomerInfo {
 export interface OrderItem {
   item: string | Item;
   name: string;
+  nameObj?: BilingualText;
   price: number;
   quantity: number;
   subtotal: number;
   imageUrl?: string;
+  image?: string;
 }
 
 export interface Order {

@@ -1,25 +1,27 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ItemService } from '../../../core/services/item.service';
 import { CartService } from '../../../core/services/cart.service';
 import { FavoriteService } from '../../../core/services/favorite.service';
+import { LanguageService } from '../../../core/services/language.service';
 import { Item } from '../../../core/models/ecommerce.model';
 import { ProductCardComponent } from '../../../shared/components/product-card/product-card.component';
+import { TranslatePipe } from '../../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-item-details',
   standalone: true,
-  imports: [CommonModule, RouterModule, ProductCardComponent],
+  imports: [CommonModule, RouterModule, ProductCardComponent, TranslatePipe],
   template: `
     <div class="item-details-page" *ngIf="item(); else loadingTpl">
       <!-- Breadcrumb Bar -->
       <div class="breadcrumb-bar">
         <div class="container">
           <nav class="breadcrumb-nav">
-            <a routerLink="/">Home</a>
+            <a routerLink="/">{{ 'navigation.home' | translate }}</a>
             <span class="sep">/</span>
-            <a routerLink="/shop">Shop Collection</a>
+            <a routerLink="/shop">{{ 'navigation.shop' | translate }}</a>
             <span class="sep">/</span>
             <a [routerLink]="['/shop']" [queryParams]="{ category: categoryId }" *ngIf="categoryName">
               {{ categoryName }}
@@ -60,7 +62,7 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
               <h1 class="item-title">{{ item()?.name }}</h1>
               <div class="price-box">
                 <span class="item-price">\${{ item()?.price | number:'1.2-2' }}</span>
-                <span class="tax-note">Complimentary concierge delivery included</span>
+                <span class="tax-note">{{ 'product.complimentaryDelivery' | translate }}</span>
               </div>
 
               <div class="divider"></div>
@@ -70,20 +72,20 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
               <!-- Luxury Specifications -->
               <div class="specs-accordion">
                 <div class="spec-row" *ngIf="item()?.material">
-                  <span class="spec-label">Material & Finish</span>
+                  <span class="spec-label">{{ 'product.materialLabel' | translate }}</span>
                   <span class="spec-value">{{ item()?.material }}</span>
                 </div>
                 <div class="spec-row" *ngIf="item()?.dimensions">
-                  <span class="spec-label">Dimensions & Fit</span>
+                  <span class="spec-label">{{ 'product.dimensionsLabel' | translate }}</span>
                   <span class="spec-value">{{ item()?.dimensions }}</span>
                 </div>
                 <div class="spec-row">
-                  <span class="spec-label">Packaging</span>
-                  <span class="spec-value">Custom velvet dust pouch & hard-shell presentation box</span>
+                  <span class="spec-label">{{ 'product.packagingLabel' | translate }}</span>
+                  <span class="spec-value">{{ 'product.packagingValue' | translate }}</span>
                 </div>
                 <div class="spec-row">
-                  <span class="spec-label">Ordering Method</span>
-                  <span class="spec-value">Direct phone confirmation via atelier manager</span>
+                  <span class="spec-label">{{ 'product.orderingLabel' | translate }}</span>
+                  <span class="spec-value">{{ 'product.orderingValue' | translate }}</span>
                 </div>
               </div>
 
@@ -118,7 +120,7 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
                     <line x1="3" y1="6" x2="21" y2="6"></line>
                     <path d="M16 10a4 4 0 0 1-8 0"></path>
                   </svg>
-                  Add to Shopping Bag
+                  {{ 'product.addToBag' | translate }}
                 </button>
 
                 <button
@@ -126,7 +128,7 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
                   class="btn btn-outline favorite-toggle-btn"
                   [class.active]="item() && favoriteService.isFavorite(item()!._id)"
                   (click)="toggleWishlist()"
-                  title="Toggle wishlist"
+                  [title]="item() && favoriteService.isFavorite(item()!._id) ? ('product.removeFromWishlist' | translate) : ('product.addToWishlist' | translate)"
                 >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -150,8 +152,8 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
                   <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                 </svg>
                 <div>
-                  <strong>Telephone Purchase Service</strong>
-                  <p>When you submit your order, our dedicated store manager will contact you directly by phone to verify details and arrange white-glove delivery.</p>
+                  <strong>{{ 'product.phoneNoticeTitle' | translate }}</strong>
+                  <p>{{ 'product.phoneNoticeDesc' | translate }}</p>
                 </div>
               </div>
             </div>
@@ -163,8 +165,8 @@ import { ProductCardComponent } from '../../../shared/components/product-card/pr
       <section class="section related-section bg-cream" *ngIf="relatedItems().length > 0">
         <div class="container">
           <div class="section-header">
-            <span class="section-tag">Harmonious Accents</span>
-            <h2 class="section-title">You May Also Admire</h2>
+            <span class="section-tag">{{ 'product.relatedTag' | translate }}</span>
+            <h2 class="section-title">{{ 'product.relatedTitle' | translate }}</h2>
           </div>
           <div class="related-grid">
             <app-product-card *ngFor="let rel of relatedItems()" [item]="rel"></app-product-card>
@@ -497,11 +499,22 @@ export class ItemDetailsComponent implements OnInit {
   private itemService = inject(ItemService);
   cartService = inject(CartService);
   favoriteService = inject(FavoriteService);
+  private languageService = inject(LanguageService);
 
   item = signal<Item | null>(null);
   activeImage = signal<string>('');
   selectedQty = signal<number>(1);
   relatedItems = signal<Item[]>([]);
+
+  constructor() {
+    effect(() => {
+      const currentLang = this.languageService.currentLang();
+      const current = this.item();
+      if (currentLang && current && current._id) {
+        this.loadItem(current._id);
+      }
+    });
+  }
 
   get categoryName(): string {
     const it = this.item();

@@ -4,20 +4,21 @@ import { Router, RouterModule } from '@angular/router';
 import { CartService } from '../../../core/services/cart.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { TranslatePipe } from '../../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, RouterModule, EmptyStateComponent],
+  imports: [CommonModule, RouterModule, EmptyStateComponent, TranslatePipe],
   template: `
     <div class="cart-page">
       <!-- Header -->
       <section class="cart-header">
         <div class="container text-center">
-          <span class="sub-label">Concierge Selection</span>
-          <h1 class="page-title">Your Shopping Bag</h1>
+          <span class="sub-label">{{ 'navigation.brand' | translate }} {{ 'navigation.brandSub' | translate }}</span>
+          <h1 class="page-title">{{ 'cart.title' | translate }}</h1>
           <p class="page-desc">
-            Review your chosen accessories before proceeding to phone order reservation.
+            {{ 'cart.desc' | translate }}
           </p>
         </div>
       </section>
@@ -68,7 +69,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
                 </div>
 
                 <div class="item-subtotal-box">
-                  <span class="subtotal-label">Subtotal</span>
+                  <span class="subtotal-label">{{ 'cart.subtotal' | translate }}</span>
                   <span class="subtotal-val">\${{ (ci.item.price * ci.quantity) | number:'1.2-2' }}</span>
                 </div>
 
@@ -89,10 +90,10 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 
               <div class="cart-actions-row">
                 <a routerLink="/shop" class="btn btn-outline btn-sm">
-                  &larr; Continue Exploring Catalog
+                  {{ 'cart.continueShopping' | translate }}
                 </a>
                 <button type="button" class="btn btn-ghost btn-sm" (click)="cartService.clearCart()">
-                  Clear Shopping Bag
+                  {{ 'cart.clearBag' | translate }}
                 </button>
               </div>
             </div>
@@ -100,27 +101,27 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
             <!-- Right: Order Summary Sidebar -->
             <div class="cart-summary-column">
               <div class="summary-card">
-                <h3 class="summary-title">Order Summary</h3>
+                <h3 class="summary-title">{{ 'cart.orderSummary' | translate }}</h3>
 
                 <div class="summary-line">
-                  <span>Selected Pieces</span>
+                  <span>{{ 'cart.selectedPieces' | translate }}</span>
                   <span class="val">{{ cartService.cartCount() }}</span>
                 </div>
 
                 <div class="summary-line">
-                  <span>Subtotal</span>
+                  <span>{{ 'cart.subtotal' | translate }}</span>
                   <span class="val">\${{ cartService.subtotal() | number:'1.2-2' }}</span>
                 </div>
 
                 <div class="summary-line">
-                  <span>White-Glove Delivery</span>
-                  <span class="val text-gold">Complimentary</span>
+                  <span>{{ 'cart.delivery' | translate }}</span>
+                  <span class="val text-gold">{{ 'cart.deliveryComplimentary' | translate }}</span>
                 </div>
 
                 <div class="summary-divider"></div>
 
                 <div class="summary-line total-line">
-                  <span>Total</span>
+                  <span>{{ 'cart.total' | translate }}</span>
                   <span class="total-val">\${{ cartService.totalPrice() | number:'1.2-2' }}</span>
                 </div>
 
@@ -140,15 +141,15 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
                   [disabled]="isValidating()"
                   (click)="proceedToCheckout()"
                 >
-                  <span *ngIf="!isValidating()">Proceed to Telephone Checkout</span>
-                  <span *ngIf="isValidating()">Verifying stock availability...</span>
+                  <span *ngIf="!isValidating()">{{ 'cart.checkout' | translate }}</span>
+                  <span *ngIf="isValidating()">{{ 'cart.verifyingStock' | translate }}</span>
                 </button>
 
                 <div class="phone-order-note">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                   </svg>
-                  <span>Orders are verified via telephone call prior to dispatch. No upfront online charge.</span>
+                  <span>{{ 'cart.phoneNote' | translate }}</span>
                 </div>
               </div>
             </div>
@@ -157,9 +158,9 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
           <!-- Empty State -->
           <ng-template #emptyCartTpl>
             <app-empty-state
-              title="Your Shopping Bag is Serene"
-              description="You have not added any accessories to your bag yet. Explore our handcrafted handbags, timepieces, and accessories."
-              actionText="Discover the Atelier"
+              [title]="'cart.emptyTitle' | translate"
+              [description]="'cart.emptyDesc' | translate"
+              [actionText]="'cart.emptyBtn' | translate"
               actionRoute="/shop"
             ></app-empty-state>
           </ng-template>

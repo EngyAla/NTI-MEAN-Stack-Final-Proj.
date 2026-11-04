@@ -1,22 +1,24 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { OrderService } from '../../../core/services/order.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { LanguageService } from '../../../core/services/language.service';
 import { Order } from '../../../core/models/ecommerce.model';
+import { TranslatePipe } from '../../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-orders-manager',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, TranslatePipe],
   template: `
     <div class="orders-manager">
       <!-- Title Row -->
       <div class="title-row">
         <div>
-          <h1 class="page-title">Client Orders Management</h1>
+          <h1 class="page-title">{{ 'manager.orders.title' | translate }}</h1>
           <p class="page-desc">
-            Review telephone reservation requests, manage customer fulfillment, and record concierge notes.
+            {{ 'manager.orders.desc' | translate }}
           </p>
         </div>
 
@@ -25,7 +27,7 @@ import { Order } from '../../../core/models/ecommerce.model';
             <polyline points="23 4 23 10 17 10"></polyline>
             <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
           </svg>
-          Refresh Orders
+          {{ 'manager.orders.refresh' | translate }}
         </button>
       </div>
 
@@ -40,7 +42,7 @@ import { Order } from '../../../core/models/ecommerce.model';
               [class.active]="selectedStatus() === 'all'"
               (click)="setStatusFilter('all')"
             >
-              All Orders
+              {{ 'manager.orders.all' | translate }}
             </button>
             <button
               type="button"
@@ -48,7 +50,7 @@ import { Order } from '../../../core/models/ecommerce.model';
               [class.active]="selectedStatus() === 'opened'"
               (click)="setStatusFilter('opened')"
             >
-              Opened (Pending Call)
+              {{ 'manager.orders.opened' | translate }}
             </button>
             <button
               type="button"
@@ -56,7 +58,7 @@ import { Order } from '../../../core/models/ecommerce.model';
               [class.active]="selectedStatus() === 'closed'"
               (click)="setStatusFilter('closed')"
             >
-              Closed (Fulfilled)
+              {{ 'manager.orders.closed' | translate }}
             </button>
           </div>
 
@@ -68,7 +70,7 @@ import { Order } from '../../../core/models/ecommerce.model';
             </svg>
             <input
               type="text"
-              placeholder="Search by client name, phone, or order ID..."
+              [placeholder]="'shop.filters.searchPlaceholder' | translate"
               class="form-control search-input"
               [ngModel]="searchQuery()"
               (ngModelChange)="onSearchChange($event)"
@@ -83,14 +85,14 @@ import { Order } from '../../../core/models/ecommerce.model';
           <table class="luxury-table" *ngIf="orders().length > 0; else noOrders">
             <thead>
               <tr>
-                <th>Order ID</th>
-                <th>Client Full Name</th>
-                <th>Phone Number</th>
-                <th>Submission Date</th>
-                <th>Items Count</th>
-                <th>Total Price</th>
-                <th>Status</th>
-                <th style="text-align: right;">Action</th>
+                <th>{{ 'checkout.orderRef' | translate }}</th>
+                <th>{{ 'checkout.fullName' | translate }}</th>
+                <th>{{ 'checkout.phone' | translate }}</th>
+                <th>{{ 'common.date' | translate }}</th>
+                <th>{{ 'cart.selectedPieces' | translate }}</th>
+                <th>{{ 'common.total' | translate }}</th>
+                <th>{{ 'common.status' | translate }}</th>
+                <th style="text-align: right;">{{ 'common.actions' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -121,7 +123,7 @@ import { Order } from '../../../core/models/ecommerce.model';
                       'badge-closed': ord.status === 'closed'
                     }"
                   >
-                    {{ ord.status }}
+                    {{ ord.status === 'opened' ? ('manager.stats.pendingCall' | translate) : ('manager.stats.fulfilled' | translate) }}
                   </span>
                 </td>
                 <td style="text-align: right;">
@@ -130,7 +132,7 @@ import { Order } from '../../../core/models/ecommerce.model';
                     class="btn btn-outline btn-sm"
                     (click)="viewOrder(ord)"
                   >
-                    View Details
+                    {{ 'manager.orders.viewDetails' | translate }}
                   </button>
                 </td>
               </tr>
@@ -150,7 +152,7 @@ import { Order } from '../../../core/models/ecommerce.model';
         <div class="modal-dialog modal-lg">
           <div class="modal-header">
             <div>
-              <span class="order-badge-tag">Order Dossier</span>
+              <span class="order-badge-tag">{{ 'manager.orders.dossier' | translate }}</span>
               <h3>{{ activeOrder()?.orderNumber }}</h3>
             </div>
             <button type="button" class="btn btn-ghost btn-sm close-modal-btn" (click)="closeModal()">
@@ -162,7 +164,7 @@ import { Order } from '../../../core/models/ecommerce.model';
             <!-- Top Status Bar & Quick Toggle -->
             <div class="order-status-banner">
               <div class="current-status-display">
-                <span class="status-label">Current Fulfillment Status:</span>
+                <span class="status-label">{{ 'common.status' | translate }}:</span>
                 <span
                   class="badge status-badge-lg"
                   [ngClass]="{
@@ -170,7 +172,7 @@ import { Order } from '../../../core/models/ecommerce.model';
                     'badge-closed': activeOrder()?.status === 'closed'
                   }"
                 >
-                  {{ activeOrder()?.status }}
+                  {{ activeOrder()?.status === 'opened' ? ('manager.stats.pendingCall' | translate) : ('manager.stats.fulfilled' | translate) }}
                 </span>
               </div>
 
@@ -181,7 +183,7 @@ import { Order } from '../../../core/models/ecommerce.model';
                   class="btn btn-primary btn-sm"
                   (click)="updateStatus('closed')"
                 >
-                  Mark as Closed (Fulfilled)
+                  {{ 'manager.orders.markClosed' | translate }}
                 </button>
                 <button
                   *ngIf="activeOrder()?.status === 'closed'"
@@ -189,7 +191,7 @@ import { Order } from '../../../core/models/ecommerce.model';
                   class="btn btn-outline btn-sm"
                   (click)="updateStatus('opened')"
                 >
-                  Re-open Order (Opened)
+                  {{ 'manager.orders.reopen' | translate }}
                 </button>
               </div>
             </div>
@@ -197,13 +199,13 @@ import { Order } from '../../../core/models/ecommerce.model';
             <!-- Client & Delivery Details Grid -->
             <div class="details-section-grid">
               <div class="details-box">
-                <h4 class="box-title">Client Information</h4>
+                <h4 class="box-title">{{ 'checkout.clientInfo' | translate }}</h4>
                 <div class="info-row">
-                  <span class="lbl">Full Name:</span>
+                  <span class="lbl">{{ 'checkout.fullName' | translate }}:</span>
                   <span class="val">{{ activeOrder()?.customer?.fullName }}</span>
                 </div>
                 <div class="info-row">
-                  <span class="lbl">Telephone:</span>
+                  <span class="lbl">{{ 'checkout.phone' | translate }}:</span>
                   <span class="val">
                     <a [href]="'tel:' + activeOrder()?.customer?.phone" class="phone-link">
                       {{ activeOrder()?.customer?.phone }}
@@ -211,16 +213,16 @@ import { Order } from '../../../core/models/ecommerce.model';
                   </span>
                 </div>
                 <div class="info-row">
-                  <span class="lbl">Submitted:</span>
+                  <span class="lbl">{{ 'common.date' | translate }}:</span>
                   <span class="val">{{ activeOrder()?.createdAt | date:'medium' }}</span>
                 </div>
               </div>
 
               <div class="details-box">
-                <h4 class="box-title">Delivery Destination</h4>
+                <h4 class="box-title">{{ 'checkout.address' | translate }}</h4>
                 <p class="address-text">{{ activeOrder()?.customer?.address }}</p>
                 <div class="client-notes-box" *ngIf="activeOrder()?.customer?.notes">
-                  <strong>Client Special Instructions:</strong>
+                  <strong>{{ 'checkout.notes' | translate }}:</strong>
                   <p>{{ activeOrder()?.customer?.notes }}</p>
                 </div>
               </div>
@@ -228,15 +230,15 @@ import { Order } from '../../../core/models/ecommerce.model';
 
             <!-- Ordered Items Snapshot Table -->
             <div class="ordered-items-box">
-              <h4 class="box-title">Ordered Pieces Snapshot</h4>
+              <h4 class="box-title">{{ 'cart.selectedPieces' | translate }} (Snapshot)</h4>
               <table class="luxury-table items-snapshot-table">
                 <thead>
                   <tr>
                     <th style="width: 50px;">Piece</th>
-                    <th>Product Name & Historical Snapshot</th>
-                    <th>Unit Price</th>
-                    <th style="text-align: center;">Qty</th>
-                    <th style="text-align: right;">Subtotal</th>
+                    <th>Product Snapshot (Bilingual)</th>
+                    <th>{{ 'common.price' | translate }}</th>
+                    <th style="text-align: center;">{{ 'common.qty' | translate }}</th>
+                    <th style="text-align: right;">{{ 'common.subtotal' | translate }}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -246,6 +248,9 @@ import { Order } from '../../../core/models/ecommerce.model';
                     </td>
                     <td>
                       <strong>{{ itm.name }}</strong>
+                      <div class="bilingual-sub" *ngIf="itm.nameObj?.ar && itm.nameObj?.en">
+                        <span class="sub-pill">{{ itm.nameObj?.en }}</span> | <span class="sub-pill">{{ itm.nameObj?.ar }}</span>
+                      </div>
                     </td>
                     <td>\${{ itm.price | number:'1.2-2' }}</td>
                     <td style="text-align: center;">{{ itm.quantity }}</td>
@@ -257,7 +262,7 @@ import { Order } from '../../../core/models/ecommerce.model';
                 <tfoot>
                   <tr>
                     <td colspan="4" style="text-align: right; font-weight: 600;">
-                      Order Total Amount:
+                      {{ 'common.total' | translate }}:
                     </td>
                     <td style="text-align: right; font-weight: 700; font-size: 1.15rem; color: var(--color-espresso);">
                       \${{ activeOrder()?.totalPrice | number:'1.2-2' }}
@@ -269,9 +274,9 @@ import { Order } from '../../../core/models/ecommerce.model';
 
             <!-- Internal Manager Notes Editor -->
             <div class="internal-notes-card">
-              <h4 class="box-title">Private Atelier Notes</h4>
+              <h4 class="box-title">{{ 'manager.orders.internalNotes' | translate }}</h4>
               <p class="notes-hint">
-                Document customer phone call outcomes, scheduled courier hours, delivery tracking, or bespoke gift wrapping details.
+                {{ 'manager.orders.notesHint' | translate }}
               </p>
               <textarea
                 class="form-control internal-notes-textarea"
@@ -285,7 +290,7 @@ import { Order } from '../../../core/models/ecommerce.model';
                   [disabled]="isSavingNotes()"
                   (click)="saveNotes()"
                 >
-                  <span *ngIf="!isSavingNotes()">Save Notes</span>
+                  <span *ngIf="!isSavingNotes()">{{ 'manager.orders.saveNotes' | translate }}</span>
                   <span *ngIf="isSavingNotes()">Saving...</span>
                 </button>
               </div>
@@ -293,7 +298,7 @@ import { Order } from '../../../core/models/ecommerce.model';
           </div>
 
           <div class="modal-footer">
-            <button type="button" class="btn btn-outline" (click)="closeModal()">Close Dossier</button>
+            <button type="button" class="btn btn-outline" (click)="closeModal()">{{ 'common.close' | translate }}</button>
           </div>
         </div>
       </div>
@@ -326,8 +331,8 @@ import { Order } from '../../../core/models/ecommerce.model';
         background-color: #ffffff;
         border: 1px solid var(--color-border);
         border-radius: var(--radius-sm);
-        padding: 1.25rem 1.5rem;
-        margin-bottom: 2rem;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
       }
 
       .filter-row {
@@ -341,51 +346,45 @@ import { Order } from '../../../core/models/ecommerce.model';
       .status-tabs {
         display: flex;
         gap: 0.5rem;
+        background-color: var(--color-canvas);
+        padding: 0.25rem;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--color-border);
       }
 
       .tab-btn {
-        padding: 0.55rem 1.15rem;
-        font-family: var(--font-sans);
-        font-size: 0.78rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.08em;
-        border: 1px solid var(--color-border);
-        background-color: transparent;
+        background: transparent;
+        border: none;
+        padding: 0.45rem 1rem;
+        font-size: 0.8rem;
+        font-weight: 500;
         color: var(--color-text-secondary);
-        border-radius: var(--radius-full);
+        border-radius: var(--radius-sm);
         cursor: pointer;
         transition: var(--transition-fast);
 
-        &:hover {
-          color: var(--color-espresso);
-          border-color: var(--color-espresso);
-        }
-
         &.active {
-          background-color: var(--color-espresso);
-          color: #ffffff;
-          border-color: var(--color-espresso);
+          background-color: #ffffff;
+          color: var(--color-espresso);
+          font-weight: 600;
+          box-shadow: var(--shadow-sm);
         }
       }
 
       .search-wrap {
         position: relative;
-        display: flex;
-        align-items: center;
-        flex: 1;
-        max-width: 380px;
+        min-width: 280px;
 
         svg {
           position: absolute;
-          left: 0.85rem;
+          inset-inline-start: 1rem;
+          top: 50%;
+          transform: translateY(-50%);
           color: var(--color-text-muted);
-          pointer-events: none;
         }
 
         .search-input {
-          padding-left: 2.35rem;
-          font-size: 0.85rem;
+          padding-inline-start: 2.5rem;
         }
       }
 
@@ -397,20 +396,18 @@ import { Order } from '../../../core/models/ecommerce.model';
       }
 
       .order-id-link {
-        color: var(--color-espresso);
+        color: var(--color-gold-dark);
         cursor: pointer;
-        text-decoration: underline;
-        font-family: var(--font-sans);
-
         &:hover {
-          color: var(--color-gold-dark);
+          text-decoration: underline;
         }
       }
 
       .phone-link {
-        color: var(--color-gold-dark);
-        font-weight: 500;
+        color: var(--color-espresso);
+        text-decoration: none;
         &:hover {
+          color: var(--color-gold);
           text-decoration: underline;
         }
       }
@@ -421,142 +418,136 @@ import { Order } from '../../../core/models/ecommerce.model';
         color: var(--color-text-muted);
       }
 
-      /* Modal styling */
-      .order-badge-tag {
-        font-size: 0.7rem;
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.15em;
-        color: var(--color-gold-dark);
-        display: block;
+      .bilingual-sub {
+        font-size: 0.72rem;
+        color: var(--color-text-muted);
+        margin-top: 0.15rem;
       }
 
-      .modal-dialog.modal-lg {
-        max-width: 820px;
+      .sub-pill {
+        display: inline-block;
+      }
+
+      /* Modal Details */
+      .order-badge-tag {
+        font-size: 0.72rem;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: var(--color-gold);
+        font-weight: 600;
+        display: block;
       }
 
       .order-status-banner {
         display: flex;
-        align-items: center;
         justify-content: space-between;
-        padding: 1.25rem 1.5rem;
+        align-items: center;
         background-color: var(--color-canvas);
         border: 1px solid var(--color-border);
+        padding: 1rem 1.25rem;
         border-radius: var(--radius-sm);
-        margin-bottom: 1.75rem;
+        margin-bottom: 1.5rem;
         flex-wrap: wrap;
         gap: 1rem;
+      }
 
-        .current-status-display {
-          display: flex;
-          align-items: center;
-          gap: 0.75rem;
+      .status-label {
+        font-size: 0.85rem;
+        color: var(--color-text-secondary);
+        margin-inline-end: 0.75rem;
+      }
 
-          .status-label {
-            font-size: 0.82rem;
-            color: var(--color-text-secondary);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-          }
-
-          .status-badge-lg {
-            font-size: 0.85rem;
-            padding: 0.45rem 1rem;
-          }
-        }
+      .status-badge-lg {
+        font-size: 0.85rem;
+        padding: 0.35rem 0.85rem;
       }
 
       .details-section-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
-        margin-bottom: 1.75rem;
+        gap: 1.25rem;
+        margin-bottom: 1.5rem;
       }
 
       .details-box {
         background-color: #ffffff;
         border: 1px solid var(--color-border);
         border-radius: var(--radius-sm);
-        padding: 1.5rem;
+        padding: 1.25rem;
 
         .box-title {
           font-family: var(--font-serif);
-          font-size: 1.15rem;
-          margin-bottom: 1rem;
-          padding-bottom: 0.4rem;
+          font-size: 1.1rem;
+          color: var(--color-espresso);
+          margin-bottom: 0.85rem;
+          padding-bottom: 0.5rem;
           border-bottom: 1px solid var(--color-border-subtle);
         }
 
         .info-row {
           display: flex;
           justify-content: space-between;
-          font-size: 0.88rem;
-          margin-bottom: 0.5rem;
+          font-size: 0.85rem;
+          padding: 0.3rem 0;
 
           .lbl {
-            color: var(--color-text-muted);
+            color: var(--color-text-secondary);
           }
-
           .val {
-            font-weight: 600;
-            color: var(--color-espresso);
+            font-weight: 500;
           }
         }
 
         .address-text {
-          font-size: 0.9rem;
-          color: var(--color-text-secondary);
+          font-size: 0.88rem;
           line-height: 1.5;
+          color: var(--color-espresso);
         }
 
         .client-notes-box {
-          margin-top: 1rem;
+          margin-top: 0.75rem;
           padding: 0.75rem;
-          background-color: var(--color-cream);
+          background-color: #faf7f2;
           border-radius: var(--radius-sm);
           font-size: 0.82rem;
 
           strong {
-            color: var(--color-espresso);
+            color: var(--color-gold-dark);
             display: block;
-            margin-bottom: 0.2rem;
-          }
-
-          p {
-            margin: 0;
-            color: var(--color-text-secondary);
+            margin-bottom: 0.25rem;
           }
         }
       }
 
       .ordered-items-box {
-        background-color: #ffffff;
+        margin-bottom: 1.5rem;
         border: 1px solid var(--color-border);
         border-radius: var(--radius-sm);
-        padding: 1.5rem;
-        margin-bottom: 1.75rem;
+        overflow: hidden;
 
         .box-title {
           font-family: var(--font-serif);
-          font-size: 1.15rem;
-          margin-bottom: 1rem;
+          font-size: 1.1rem;
+          color: var(--color-espresso);
+          padding: 1rem 1.25rem;
+          background-color: #ffffff;
+          border-bottom: 1px solid var(--color-border);
         }
       }
 
       .snapshot-thumb {
         width: 44px;
         height: 44px;
-        object-fit: cover;
         border-radius: var(--radius-sm);
-        background-color: #faf7f2;
+        object-fit: cover;
+        border: 1px solid var(--color-border);
       }
 
       .internal-notes-card {
         background-color: #ffffff;
         border: 1px solid var(--color-border);
         border-radius: var(--radius-sm);
-        padding: 1.5rem;
+        padding: 1.25rem;
 
         .box-title {
           font-family: var(--font-serif);
@@ -592,6 +583,7 @@ import { Order } from '../../../core/models/ecommerce.model';
 export class OrdersManagerComponent implements OnInit {
   private orderService = inject(OrderService);
   private toastService = inject(ToastService);
+  private languageService = inject(LanguageService);
 
   orders = signal<Order[]>([]);
   selectedStatus = signal<string>('all');
@@ -600,6 +592,15 @@ export class OrdersManagerComponent implements OnInit {
   activeOrder = signal<Order | null>(null);
   editInternalNotes = '';
   isSavingNotes = signal(false);
+
+  constructor() {
+    effect(() => {
+      const currentLang = this.languageService.currentLang();
+      if (currentLang) {
+        this.loadOrders();
+      }
+    });
+  }
 
   ngOnInit() {
     this.loadOrders();

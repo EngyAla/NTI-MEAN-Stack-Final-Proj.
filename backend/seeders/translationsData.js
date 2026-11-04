@@ -1,0 +1,348 @@
+/**
+ * Comprehensive Bilingual Interface Translations for Aurelia Atelier
+ * Stored in MongoDB Translation Collection
+ */
+const translationsData = [
+  // Navigation
+  { key: 'navigation.brand', en: 'AURELIA', ar: 'أوريليا' },
+  { key: 'navigation.brandSub', en: 'ATELIER', ar: 'أتيليه' },
+  {
+    key: 'navigation.announcement',
+    en: 'Complimentary White-Glove Concierge Delivery & Bespoke Velvet Packaging',
+    ar: 'توصيل استثنائي مجاني وتغليف مخملي فاخر حسب الطلب',
+  },
+  { key: 'navigation.home', en: 'Home', ar: 'الرئيسية' },
+  { key: 'navigation.shop', en: 'Shop Collection', ar: 'المجموعة الكاملة' },
+  { key: 'navigation.handbags', en: 'Handbags', ar: 'حقائب اليد' },
+  { key: 'navigation.timepieces', en: 'Timepieces', ar: 'الساعات الفاخرة' },
+  { key: 'navigation.jewelry', en: 'Joaillerie', ar: 'المجوهرات الراقية' },
+  { key: 'navigation.eyewear', en: 'Eyewear', ar: 'النظارات' },
+  { key: 'navigation.belts', en: 'Artisan Belts', ar: 'الأحزمة الفاخرة' },
+  { key: 'navigation.silk', en: 'Silk & Accents', ar: 'الحرير والإكسسوارات' },
+  { key: 'navigation.wishlist', en: 'Wishlist', ar: 'قائمة الأمنيات' },
+  { key: 'navigation.bag', en: 'Shopping Bag', ar: 'حقيبة التسوق' },
+  { key: 'navigation.managerPortal', en: 'Manager Portal', ar: 'بوابة الإدارة' },
+  { key: 'navigation.allAccessories', en: 'All Accessories', ar: 'جميع الإكسسوارات' },
+  { key: 'navigation.language', en: 'Language', ar: 'اللغة' },
+
+  // Home Page
+  { key: 'home.hero.eyebrow', en: 'Autumn / Winter 2026 Collection', ar: 'مجموعة خريف / شتاء 2026' },
+  { key: 'home.hero.title', en: 'The Art of Everyday Elegance', ar: 'أناقة تليق بكل يوم' },
+  {
+    key: 'home.hero.desc',
+    en: 'Subtle prestige, handcrafted in limited numbers. Explore our bespoke curation of Tuscan leather bags, Swiss calibers, and solid gold heirlooms.',
+    ar: 'فخامة هادئة، صُنعت يدوياً بإصدارات محدودة. اكتشف تشكيلتنا الحصرية من الحقائب الجلدية التوسكانية، والساعات السويسرية، ومجوهرات الذهب الخالص.',
+  },
+  { key: 'home.hero.cta', en: 'Explore Collection', ar: 'اكتشف المجموعة' },
+  { key: 'home.hero.featuredCta', en: 'Featured Pieces', ar: 'القطع المميزة' },
+
+  // Pillars
+  { key: 'home.pillars.artisanTitle', en: 'Artisan Heritage', ar: 'أصالة الحرفة' },
+  {
+    key: 'home.pillars.artisanDesc',
+    en: 'Every piece is individually handcrafted in Florence and Geneva by master artisans.',
+    ar: 'تُصاغ كل قطعة يدوياً على أيدي كبار الحرفيين في فلورنسا وجنيف.',
+  },
+  { key: 'home.pillars.luxuryTitle', en: 'Pure Quiet Luxury', ar: 'فخامة هادئة خالصة' },
+  {
+    key: 'home.pillars.luxuryDesc',
+    en: 'Unadorned with ostentatious logos. Defined by exceptional materiality and proportion.',
+    ar: 'بعيدة عن الشعارات الصاخبة، تتألق بجودة المواد ودقة التفاصيل.',
+  },
+  { key: 'home.pillars.conciergeTitle', en: 'Dedicated Telephone Concierge', ar: 'خدمة كونسيرج هاتفية خاصة' },
+  {
+    key: 'home.pillars.conciergeDesc',
+    en: 'Orders are personally confirmed and arranged via phone with our atelier manager.',
+    ar: 'يتم تأكيد الطلبات وترتيب التوصيل شخصياً عبر مكالمة هاتفية مع مدير البوتيك.',
+  },
+  { key: 'home.pillars.packagingTitle', en: 'Signature Packaging', ar: 'تغليف استثنائي فاخر' },
+  {
+    key: 'home.pillars.packagingDesc',
+    en: 'Delivered in hand-stitched velvet pouches and heavyweight embossed gift boxes.',
+    ar: 'تصلكم في أكياس مخملية مخيطة يدوياً وصناديق هدايا فاخرة منقوشة.',
+  },
+
+  // Home Sections
+  { key: 'home.categories.tag', en: 'Curated Disciplines', ar: 'الأقسام الحصرية' },
+  { key: 'home.categories.title', en: 'Explore by Category', ar: 'تصفح حسب الفئة' },
+  {
+    key: 'home.categories.subtitle',
+    en: 'From architectural leather goods to Swiss mechanical horology, discover our distinct departments.',
+    ar: 'من المصنوعات الجلدية الراقية إلى الساعات الميكانيكية السويسرية، اكتشف أقسامنا المتنوعة.',
+  },
+  { key: 'home.featured.tag', en: 'Masterpiece Selection', ar: 'روائع التشكيلة' },
+  { key: 'home.featured.title', en: 'Featured Creations', ar: 'إبداعات مميزة' },
+  {
+    key: 'home.featured.subtitle',
+    en: 'Icons of the maison, celebrated for their exceptional tactile richness and timeless balance.',
+    ar: 'قطع أيقونية من دارنا، تشتهر ببراعة ملمسها وتوازنها الخالد.',
+  },
+  { key: 'home.featured.viewCatalog', en: 'View Complete Catalog', ar: 'عرض الكتالوج الكامل' },
+  { key: 'home.heritage.tag', en: 'The Philosophy', ar: 'فلسفتنا' },
+  { key: 'home.heritage.title', en: 'Understated Luxury for the Discerning Connoisseur', ar: 'فخامة راقية لذوي الذوق الرفيع' },
+  {
+    key: 'home.heritage.lead',
+    en: 'True luxury does not clamor for attention. It speaks in the whisper of hand-buffed calfskin edges, the precise mechanical click of a Swiss deployant clasp, and the warm resonance of 18k solid gold.',
+    ar: 'الفخامة الحقيقية لا تبحث عن لفت الانتباه، بل تهمس بدقة حواف الجلد الإيطالي المصقول، ونقاء إغلاق الساعات السويسرية، وبريق الذهب الخالص عيار 18.',
+  },
+  {
+    key: 'home.heritage.body',
+    en: 'At Aurelia Atelier, our creations exist beyond transient seasonal cycles. We employ traditional vegetable tanning methods that allow our leather to develop a luminous patina over decades of personal companionship.',
+    ar: 'في أوريليا أتيليه، تتجاوز قطعنا الصيحات المؤقتة. نعتمد دباغة نباتية أصيلة تمنح الجلود رونقاً يتجدد ويزداد جمالاً على مر السنين.',
+  },
+  { key: 'home.conciergeBanner.title', en: 'Personal Telephone Ordering Service', ar: 'خدمة الطلب والتأكيد الهاتفي المباشر' },
+  {
+    key: 'home.conciergeBanner.desc',
+    en: 'No online card payments required. Submit your bag selection, and our private concierge manager will reach out directly to review sizing, delivery schedule, and gift packaging options.',
+    ar: 'لا داعي للدفع بالبطاقات البنكية عبر الإنترنت. أرسل اختيارك، وسيتواصل معك مدير البوتيك مباشرة لتأكيد التفاصيل وموعد التوصيل والتغليف.',
+  },
+  { key: 'home.conciergeBanner.btn', en: 'Browse Collection', ar: 'تصفح المجموعة' },
+
+  // Shop Page
+  { key: 'shop.hero.tag', en: 'Permanent & Seasonal Collections', ar: 'المجموعات الدائمة والموسمية' },
+  { key: 'shop.hero.title', en: 'The Curated Accessories Catalog', ar: 'كتالوج الإكسسوارات الفاخرة' },
+  {
+    key: 'shop.hero.sub',
+    en: 'Explore handcrafted leathercraft, Swiss horology, fine jewels, and optical designs.',
+    ar: 'اكتشف الجلود المصنوعة يدوياً، الساعات السويسرية، المجوهرات الرفيعة، والنظارات الشمسية الراقية.',
+  },
+  { key: 'shop.filters.all', en: 'All Pieces', ar: 'جميع القطع' },
+  { key: 'shop.filters.searchPlaceholder', en: 'Search accessories...', ar: 'ابحث في الإكسسوارات...' },
+  { key: 'shop.sort.newest', en: 'Newest Additions', ar: 'أحدث الإضافات' },
+  { key: 'shop.sort.priceAsc', en: 'Price: Low to High', ar: 'السعر: من الأقل إلى الأعلى' },
+  { key: 'shop.sort.priceDesc', en: 'Price: High to Low', ar: 'السعر: من الأعلى إلى الأقل' },
+  { key: 'shop.sort.nameAsc', en: 'Name: A to Z', ar: 'الاسم: أبجدياً' },
+  { key: 'shop.results.showing', en: 'Showing', ar: 'عرض' },
+  { key: 'shop.results.designs', en: 'Designs', ar: 'تصميماً' },
+  { key: 'shop.results.reset', en: 'Reset Filters', ar: 'إعادة ضبط التصفية' },
+  { key: 'shop.empty.title', en: 'No Accessories Found', ar: 'لم يتم العثور على قطع' },
+  {
+    key: 'shop.empty.desc',
+    en: 'We could not find any accessories matching your selected criteria. Try adjusting your filters or search term.',
+    ar: 'لم نتمكن من العثور على إكسسوارات تطابق معايير البحث. يرجى تجربة كلمات أو فلاتر أخرى.',
+  },
+  { key: 'shop.empty.action', en: 'View All Pieces', ar: 'عرض جميع القطع' },
+
+  // Product Card & Details
+  { key: 'product.addToBag', en: 'Add to Bag', ar: 'أضف إلى الحقيبة' },
+  { key: 'product.addToWishlist', en: 'Add to Wishlist', ar: 'أضف إلى الأمنيات' },
+  { key: 'product.removeFromWishlist', en: 'Remove from Wishlist', ar: 'إزالة من الأمنيات' },
+  { key: 'product.quickView', en: 'View Details', ar: 'عرض التفاصيل' },
+  { key: 'product.complimentaryDelivery', en: 'Complimentary concierge delivery included', ar: 'يشمل التوصيل الفاخر المجاني' },
+  { key: 'product.materialLabel', en: 'Material & Finish', ar: 'الخامات والصقل' },
+  { key: 'product.dimensionsLabel', en: 'Dimensions & Fit', ar: 'الأبعاد والمقاس' },
+  { key: 'product.packagingLabel', en: 'Packaging', ar: 'التغليف' },
+  {
+    key: 'product.packagingValue',
+    en: 'Custom velvet dust pouch & hard-shell presentation box',
+    ar: 'كيس قماشي مخملي مخصص وصندوق هدايا فاخر',
+  },
+  { key: 'product.orderingLabel', en: 'Ordering Method', ar: 'طريقة الطلب' },
+  { key: 'product.orderingValue', en: 'Direct phone confirmation via atelier manager', ar: 'تأكيد هاتفي شخصي عبر مدير البوتيك' },
+  { key: 'product.phoneNoticeTitle', en: 'Telephone Purchase Service', ar: 'خدمة الشراء والتأكيد عبر الهاتف' },
+  {
+    key: 'product.phoneNoticeDesc',
+    en: 'When you submit your order, our dedicated store manager will contact you directly by phone to verify details and arrange white-glove delivery.',
+    ar: 'عند إرسال طلبكم، سيتواصل معكم مدير البوتيك هاتفياً لتأكيد التفاصيل وترتيب التسليم الفاخر.',
+  },
+  { key: 'product.relatedTitle', en: 'You May Also Admire', ar: 'قد ينال إعجابكم أيضاً' },
+  { key: 'product.relatedTag', en: 'Harmonious Accents', ar: 'قطع متناغمة' },
+
+  // Favorites
+  { key: 'favorites.title', en: 'Your Atelier Wishlist', ar: 'قائمة أمنياتك الخاصة' },
+  {
+    key: 'favorites.desc',
+    en: 'Personal selections preserved for your consideration. Move pieces to your shopping bag whenever you are ready.',
+    ar: 'قطعك المفضلة محفوظة بعناية. يمكنك نقلها إلى حقيبة التسوق في أي وقت.',
+  },
+  { key: 'favorites.emptyTitle', en: 'Your Wishlist is Empty', ar: 'قائمة أمنياتك فارغة' },
+  {
+    key: 'favorites.emptyDesc',
+    en: 'You haven’t preserved any creations yet. Explore our handcrafted handbags, timepieces, and jewelry to curate your personal collection.',
+    ar: 'لم تقم بحفظ أي قطع حتى الآن. استكشف حقائبنا وساعاتنا ومجوهراتنا لتكوين مجموعتك الفريدة.',
+  },
+  { key: 'favorites.emptyBtn', en: 'Explore Atelier Catalog', ar: 'تصفح كتالوج البوتيك' },
+  { key: 'favorites.piecesSaved', en: 'Pieces Saved', ar: 'قطع محفوظة' },
+
+  // Cart & Checkout
+  { key: 'cart.title', en: 'Your Shopping Bag', ar: 'حقيبة التسوق الخاصة بك' },
+  {
+    key: 'cart.desc',
+    en: 'Review your chosen accessories before proceeding to phone order reservation.',
+    ar: 'راجع القطع المختارة قبل المتابعة لتأكيد حجز الطلب هاتفياً.',
+  },
+  { key: 'cart.orderSummary', en: 'Order Summary', ar: 'ملخص الطلب' },
+  { key: 'cart.selectedPieces', en: 'Selected Pieces', ar: 'القطع المختارة' },
+  { key: 'cart.subtotal', en: 'Subtotal', ar: 'المجموع الفرعي' },
+  { key: 'cart.delivery', en: 'White-Glove Delivery', ar: 'توصيل استثنائي فاخر' },
+  { key: 'cart.deliveryComplimentary', en: 'Complimentary', ar: 'مجاني' },
+  { key: 'cart.total', en: 'Total', ar: 'المجموع الكلي' },
+  { key: 'cart.checkout', en: 'Proceed to Telephone Checkout', ar: 'المتابعة لإتمام الطلب هاتفياً' },
+  { key: 'cart.continueShopping', en: 'Continue Exploring Catalog', ar: 'متابعة تصفح الكتالوج' },
+  { key: 'cart.clearBag', en: 'Clear Shopping Bag', ar: 'تفريغ حقيبة التسوق' },
+  { key: 'cart.emptyTitle', en: 'Your Shopping Bag is Serene', ar: 'حقيبة التسوق فارغة حالياً' },
+  {
+    key: 'cart.emptyDesc',
+    en: 'You have not added any accessories to your bag yet. Explore our handcrafted handbags, timepieces, and accessories.',
+    ar: 'لم تضف أي إكسسوارات إلى حقيبتك بعد. اكتشف حقائبنا اليدوية وساعاتنا الفاخرة.',
+  },
+  { key: 'cart.emptyBtn', en: 'Discover the Atelier', ar: 'اكتشف البوتيك' },
+  {
+    key: 'cart.phoneNote',
+    en: 'Orders are verified via telephone call prior to dispatch. No upfront online charge.',
+    ar: 'يتم التحقق من الطلبات عبر مكالمة هاتفية قبل الشحن. لا توجد أي مدفوعات مسبقة عبر الإنترنت.',
+  },
+  { key: 'cart.verifyingStock', en: 'Verifying stock availability...', ar: 'جاري التحقق من توفر المخزون...' },
+
+  // Checkout
+  { key: 'checkout.title', en: 'Concierge Checkout', ar: 'إتمام الشراء عبر الكونسيرج' },
+  {
+    key: 'checkout.desc',
+    en: 'Direct atelier arrangement. Provide your contact details and our manager will call you to finalize delivery.',
+    ar: 'ترتيب مباشر مع البوتيك. أدخل بياناتك وسيتصل بك مديرنا لتأكيد التوصيل.',
+  },
+  { key: 'checkout.clientInfo', en: 'Client Information', ar: 'بيانات العميل' },
+  {
+    key: 'checkout.clientDesc',
+    en: 'Please provide your contact details for telephone verification and direct courier dispatch.',
+    ar: 'يرجى تقديم بيانات الاتصال لتأكيد الطلب هاتفياً وشحن القطع مباشرة إليك.',
+  },
+  { key: 'checkout.fullName', en: 'Full Name', ar: 'الاسم الكامل' },
+  { key: 'checkout.phone', en: 'Phone Number', ar: 'رقم الهاتف (لتأكيد الطلب)' },
+  {
+    key: 'checkout.phoneHint',
+    en: 'Our manager will reach out via this telephone number to finalize your order.',
+    ar: 'سيتواصل معك مدير البوتيك عبر هذا الرقم لتأكيد طلبك.',
+  },
+  { key: 'checkout.address', en: 'Delivery Address', ar: 'عنوان التوصيل' },
+  { key: 'checkout.notes', en: 'Delivery Notes or Special Requests (Optional)', ar: 'ملاحظات التوصيل أو طلبات خاصة (اختياري)' },
+  { key: 'checkout.submitBtn', en: 'Submit Order Request', ar: 'إرسال طلب الشراء' },
+  { key: 'checkout.submitting', en: 'Reserving Pieces & Submitting...', ar: 'جاري حجز القطع وإرسال الطلب...' },
+  { key: 'checkout.successTag', en: 'Order Submitted Successfully', ar: 'تم إرسال الطلب بنجاح' },
+  { key: 'checkout.successThankYou', en: 'Thank You', ar: 'شكراً لك' },
+  { key: 'checkout.orderRef', en: 'Order Reference', ar: 'رقم مرجع الطلب' },
+  { key: 'checkout.nextStepTitle', en: 'Next Step: Telephone Confirmation', ar: 'الخطوة التالية: التأكيد الهاتفي' },
+  {
+    key: 'checkout.nextStepDesc',
+    en: 'Your order is currently in Opened status. Our atelier executive manager will call you shortly to confirm your requested pieces, review delivery timing, and accommodate any custom packaging requests.',
+    ar: 'طلبكم حالياً بحالة «مفتوح». سيتصل بكم مدير البوتيك قريباً لتأكيد القطع وموعد التوصيل وأي رغبات خاصة بالتغليف.',
+  },
+  { key: 'checkout.returnHome', en: 'Return to Home', ar: 'العودة للرئيسية' },
+  { key: 'checkout.exploreMore', en: 'Explore More Accessories', ar: 'استكشف المزيد من الإكسسوارات' },
+
+  // Manager Portal
+  { key: 'manager.loginTitle', en: 'AURELIA', ar: 'أوريليا' },
+  { key: 'manager.loginSubtitle', en: 'EXECUTIVE CONSOLE', ar: 'لوحة التحكم التنفيذية' },
+  { key: 'manager.loginBadge', en: 'Atelier Management Portal', ar: 'بوابة إدارة البوتيك' },
+  {
+    key: 'manager.loginIntro',
+    en: 'Authorized personnel only. Enter your credentials to access the private inventory and client order dashboard.',
+    ar: 'للمصرح لهم فقط. أدخل بيانات الاعتماد للوصول إلى لوحة إدارة المخزون والطلبات.',
+  },
+  { key: 'manager.emailLabel', en: 'Manager Email', ar: 'البريد الإلكتروني للمدير' },
+  { key: 'manager.passwordLabel', en: 'Password', ar: 'كلمة المرور' },
+  { key: 'manager.loginBtn', en: 'Authenticate & Enter', ar: 'تسجيل الدخول والمتابعة' },
+  { key: 'manager.returnStore', en: 'Return to Public Storefront', ar: 'العودة إلى واجهة المتجر' },
+
+  // Manager Navigation
+  { key: 'manager.nav.overview', en: 'Overview', ar: 'نظرة عامة' },
+  { key: 'manager.nav.categories', en: 'Categories', ar: 'الفئات والأقسام' },
+  { key: 'manager.nav.items', en: 'Items & Inventory', ar: 'المنتجات والمخزون' },
+  { key: 'manager.nav.orders', en: 'Orders Management', ar: 'إدارة الطلبات' },
+  { key: 'manager.nav.viewStore', en: 'View Public Store', ar: 'زيارة المتجر العام' },
+  { key: 'manager.nav.signOut', en: 'Sign Out', ar: 'تسجيل الخروج' },
+  { key: 'manager.liveDb', en: 'Live Database Connected', ar: 'قاعدة البيانات متصلة ومباشرة' },
+
+  // Manager Dashboard Overview
+  { key: 'manager.stats.title', en: 'Executive Dashboard', ar: 'لوحة التحكم التنفيذية' },
+  { key: 'manager.stats.desc', en: 'Overview of boutique operations, active catalog, and client telephone orders.', ar: 'نظرة شاملة على عمليات البوتيك والكتالوج النشط والطلبات الهاتفية للعملاء.' },
+  { key: 'manager.stats.manageItems', en: 'Manage Items', ar: 'إدارة المنتجات' },
+  { key: 'manager.stats.categories', en: 'Categories', ar: 'الأقسام' },
+  { key: 'manager.stats.items', en: 'Total Items', ar: 'إجمالي المنتجات' },
+  { key: 'manager.stats.orders', en: 'Total Orders', ar: 'إجمالي الطلبات' },
+  { key: 'manager.stats.openedOrders', en: 'Opened Orders', ar: 'طلبات مفتوحة' },
+  { key: 'manager.stats.closedOrders', en: 'Closed Orders', ar: 'طلبات مكتملة' },
+  { key: 'manager.stats.pendingCall', en: 'Pending Call', ar: 'بانتظار الاتصال' },
+  { key: 'manager.stats.fulfilled', en: 'Fulfilled', ar: 'تم التوصيل' },
+  { key: 'manager.stats.recentOrders', en: 'Recent Telephone Orders', ar: 'أحدث الطلبات الهاتفية' },
+  { key: 'manager.stats.recentOrdersDesc', en: 'Latest client order submissions awaiting phone confirmation or completed.', ar: 'أحدث طلبات العملاء بانتظار التأكيد الهاتفي أو المكتملة.' },
+  { key: 'manager.stats.viewAllOrders', en: 'View All in Orders Manager', ar: 'عرض الكل في إدارة الطلبات' },
+
+  // Manager Categories
+  { key: 'manager.cat.title', en: 'Categories Management', ar: 'إدارة الفئات والأقسام' },
+  { key: 'manager.cat.desc', en: 'Define atelier departments and manage catalog categorization in both languages.', ar: 'تحديد أقسام البوتيك وإدارة تصنيف الكتالوج باللغتين العربية والإنجليزية.' },
+  { key: 'manager.cat.addBtn', en: 'Add New Category', ar: 'إضافة فئة جديدة' },
+  { key: 'manager.cat.nameEn', en: 'Category Name (English) *', ar: 'اسم الفئة (بالإنجليزية) *' },
+  { key: 'manager.cat.nameAr', en: 'Category Name (Arabic) *', ar: 'اسم الفئة (بالعربية) *' },
+  { key: 'manager.cat.descEn', en: 'Description (English)', ar: 'الوصف (بالإنجليزية)' },
+  { key: 'manager.cat.descAr', en: 'Description (Arabic)', ar: 'الوصف (بالعربية)' },
+  { key: 'manager.cat.imageUrl', en: 'Image URL', ar: 'رابط الصورة' },
+  { key: 'manager.cat.imageHint', en: 'Reminder: Only accessories product photography is permitted (no human faces).', ar: 'تنبيه: يُسمح فقط بصور منتجات الإكسسوارات (يُمنع استخدام وجوه بشرية).' },
+
+  // Manager Items
+  { key: 'manager.items.title', en: 'Items & Inventory Management', ar: 'إدارة المنتجات والمخزون' },
+  { key: 'manager.items.desc', en: 'Manage accessories catalog, set bilingual descriptions, and monitor stock reserves.', ar: 'إدارة كتالوج الإكسسوارات، وضبط الأوصاف باللغتين، ومراقبة احتياطيات المخزون.' },
+  { key: 'manager.items.addBtn', en: 'Add New Item', ar: 'إضافة قطعة جديدة' },
+  { key: 'manager.items.nameEn', en: 'Item Name (English) *', ar: 'اسم القطعة (بالإنجليزية) *' },
+  { key: 'manager.items.nameAr', en: 'Item Name (Arabic) *', ar: 'اسم القطعة (بالعربية) *' },
+  { key: 'manager.items.descEn', en: 'Description (English) *', ar: 'الوصف (بالإنجليزية) *' },
+  { key: 'manager.items.descAr', en: 'Description (Arabic) *', ar: 'الوصف (بالعربية) *' },
+  { key: 'manager.items.price', en: 'Price ($ USD) *', ar: 'السعر ($ دولار) *' },
+  { key: 'manager.items.quantity', en: 'Stock Quantity (Private to Manager) *', ar: 'كمية المخزون (خاص بالإدارة) *' },
+  { key: 'manager.items.category', en: 'Category *', ar: 'الفئة *' },
+  { key: 'manager.items.image', en: 'Primary Image URL (Accessories Photography Only) *', ar: 'رابط الصورة الرئيسية (صور إكسسوارات فقط) *' },
+  { key: 'manager.items.materialEn', en: 'Material Spec (English)', ar: 'الخامات والصقل (بالإنجليزية)' },
+  { key: 'manager.items.materialAr', en: 'Material Spec (Arabic)', ar: 'الخامات والصقل (بالعربية)' },
+  { key: 'manager.items.dimensions', en: 'Dimensions', ar: 'الأبعاد والمقاس' },
+  { key: 'manager.items.featured', en: 'Highlight as Featured Masterpiece on Home Page', ar: 'إبراز كقطعة مميزة في الصفحة الرئيسية' },
+  { key: 'manager.items.unitsInStock', en: 'units in stock', ar: 'قطعة بالمخزن' },
+
+  // Manager Orders
+  { key: 'manager.orders.title', en: 'Client Orders Management', ar: 'إدارة طلبات العملاء' },
+  { key: 'manager.orders.desc', en: 'Review telephone reservation requests, manage customer fulfillment, and record concierge notes.', ar: 'مراجعة طلبات الحجز الهاتفية، وإدارة تسليم العملاء، وتدوين ملاحظات الكونسيرج.' },
+  { key: 'manager.orders.refresh', en: 'Refresh Orders', ar: 'تحديث الطلبات' },
+  { key: 'manager.orders.all', en: 'All Orders', ar: 'جميع الطلبات' },
+  { key: 'manager.orders.opened', en: 'Opened (Pending Call)', ar: 'مفتوح (بانتظار الاتصال)' },
+  { key: 'manager.orders.closed', en: 'Closed (Fulfilled)', ar: 'مكتمل (تم التوصيل)' },
+  { key: 'manager.orders.viewDetails', en: 'View Details', ar: 'عرض التفاصيل' },
+  { key: 'manager.orders.dossier', en: 'Order Dossier', ar: 'ملف تفاصيل الطلب' },
+  { key: 'manager.orders.markClosed', en: 'Mark as Closed (Fulfilled)', ar: 'تحديد كمكتمل (تم التسليم)' },
+  { key: 'manager.orders.reopen', en: 'Re-open Order (Opened)', ar: 'إعادة فتح الطلب' },
+  { key: 'manager.orders.internalNotes', en: 'Private Atelier Notes', ar: 'ملاحظات الإدارة الخاصة' },
+  { key: 'manager.orders.notesHint', en: 'Document customer phone call outcomes, scheduled courier hours, delivery tracking, or bespoke gift wrapping details.', ar: 'توثيق نتائج الاتصال بالعميل، مواعيد الشحن، تتبع التوصيل، أو تفاصيل التغليف الخاصة.' },
+  { key: 'manager.orders.saveNotes', en: 'Save Notes', ar: 'حفظ الملاحظات' },
+
+  // Common UI Actions
+  { key: 'common.save', en: 'Save', ar: 'حفظ' },
+  { key: 'common.cancel', en: 'Cancel', ar: 'إلغاء' },
+  { key: 'common.delete', en: 'Delete', ar: 'حذف' },
+  { key: 'common.edit', en: 'Edit', ar: 'تعديل' },
+  { key: 'common.close', en: 'Close', ar: 'إغلاق' },
+  { key: 'common.actions', en: 'Actions', ar: 'الإجراءات' },
+  { key: 'common.status', en: 'Status', ar: 'الحالة' },
+  { key: 'common.date', en: 'Date', ar: 'التاريخ' },
+  { key: 'common.price', en: 'Price', ar: 'السعر' },
+  { key: 'common.qty', en: 'Qty', ar: 'الكمية' },
+  { key: 'common.subtotal', en: 'Subtotal', ar: 'المجموع الفرعي' },
+  { key: 'common.total', en: 'Total', ar: 'المجموع' },
+
+  // Footer
+  {
+    key: 'footer.brandDesc',
+    en: 'An independent maison celebrating timeless aesthetics, artisan leathercraft, and Swiss horological mastery. Every accessory is thoughtfully sculpted for everyday elegance.',
+    ar: 'دار مستقلة تحتفي بالجمال الخالد والجلود الإيطالية المصنوعة يدوياً وبراعة الساعات السويسرية. كل قطعة صُممت لتضفي أناقة راقية على كل يوم.',
+  },
+  { key: 'footer.telephone', en: 'Personal Telephone Concierge', ar: 'كونسيرج هاتفي شخصي' },
+  { key: 'footer.collections', en: 'Collections', ar: 'المجموعات' },
+  { key: 'footer.clientCare', en: 'Client Care', ar: 'خدمة العملاء' },
+  { key: 'footer.newsletter', en: 'Atelier Gazette', ar: 'جريدة البوتيك' },
+  {
+    key: 'footer.newsletterDesc',
+    en: 'Receive private invitations to private viewings, rare horological releases, and limited leather editions.',
+    ar: 'احصل على دعوات حصرية للعروض الخاصة وإصدارات الساعات النادرة والجلود المحدودة.',
+  },
+  { key: 'footer.subscribe', en: 'Subscribe', ar: 'اشتراك' },
+  { key: 'footer.rights', en: 'All rights reserved.', ar: 'جميع الحقوق محفوظة.' },
+];
+
+module.exports = translationsData;

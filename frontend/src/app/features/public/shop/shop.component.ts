@@ -1,25 +1,27 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { CategoryService } from '../../../core/services/category.service';
 import { ItemService } from '../../../core/services/item.service';
+import { LanguageService } from '../../../core/services/language.service';
 import { Category, Item } from '../../../core/models/ecommerce.model';
 import { ProductCardComponent } from '../../../shared/components/product-card/product-card.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { TranslatePipe } from '../../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-shop',
   standalone: true,
-  imports: [CommonModule, RouterModule, FormsModule, ProductCardComponent, EmptyStateComponent],
+  imports: [CommonModule, RouterModule, FormsModule, ProductCardComponent, EmptyStateComponent, TranslatePipe],
   template: `
     <!-- Shop Hero Header -->
     <section class="shop-hero">
       <div class="container text-center">
-        <span class="shop-tag">Permanent & Seasonal Collections</span>
-        <h1 class="shop-title">The Curated Accessories Catalog</h1>
+        <span class="shop-tag">{{ 'shop.hero.tag' | translate }}</span>
+        <h1 class="shop-title">{{ 'shop.hero.title' | translate }}</h1>
         <p class="shop-sub">
-          Explore handcrafted leathercraft, Swiss horology, fine jewels, and optical designs.
+          {{ 'shop.hero.sub' | translate }}
         </p>
       </div>
     </section>
@@ -35,7 +37,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
             [class.active]="selectedCategoryId() === ''"
             (click)="selectCategory('')"
           >
-            All Pieces
+            {{ 'shop.filters.all' | translate }}
           </button>
           <button
             *ngFor="let cat of categories()"
@@ -58,7 +60,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
             </svg>
             <input
               type="text"
-              placeholder="Search accessories..."
+              [placeholder]="'shop.filters.searchPlaceholder' | translate"
               [ngModel]="searchQuery()"
               (ngModelChange)="onSearchChange($event)"
               class="search-input"
@@ -80,10 +82,10 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
               (ngModelChange)="onSortChange($event)"
               class="sort-select"
             >
-              <option value="newest">Newest Additions</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-              <option value="name-asc">Name: A to Z</option>
+              <option value="newest">{{ 'shop.sort.newest' | translate }}</option>
+              <option value="price-asc">{{ 'shop.sort.priceAsc' | translate }}</option>
+              <option value="price-desc">{{ 'shop.sort.priceDesc' | translate }}</option>
+              <option value="name-asc">{{ 'shop.sort.nameAsc' | translate }}</option>
             </select>
           </div>
         </div>
@@ -96,7 +98,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
         <!-- Active Filter Indicator & Count -->
         <div class="results-header">
           <span class="results-count">
-            Showing {{ items().length }} {{ items().length === 1 ? 'Design' : 'Designs' }}
+            {{ 'shop.results.showing' | translate }} {{ items().length }} {{ 'shop.results.designs' | translate }}
           </span>
           <button
             *ngIf="selectedCategoryId() || searchQuery()"
@@ -104,7 +106,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
             class="reset-filters-btn"
             (click)="resetFilters()"
           >
-            Reset Filters
+            {{ 'shop.results.reset' | translate }}
           </button>
         </div>
 
@@ -116,16 +118,16 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
         <!-- Empty State -->
         <app-empty-state
           *ngIf="!isLoading() && items().length === 0"
-          title="No Accessories Found"
-          description="We could not find any accessories matching your selected criteria. Try adjusting your filters or search term."
-          actionText="View All Pieces"
-          (click)="resetFilters()"
+          [title]="'shop.empty.title' | translate"
+          [description]="'shop.empty.desc' | translate"
+          [actionText]="'shop.empty.action' | translate"
+          (actionClick)="resetFilters()"
         ></app-empty-state>
 
         <!-- Loading State -->
         <div class="loading-state" *ngIf="isLoading()">
           <div class="spinner"></div>
-          <span>Curating your accessories gallery...</span>
+          <span>{{ 'shop.results.showing' | translate }}...</span>
         </div>
       </div>
     </section>
@@ -169,7 +171,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
         border-bottom: 1px solid var(--color-border);
         padding: 1.25rem 0;
         position: sticky;
-        top: 78px;
+        top: 0px;
         z-index: 50;
       }
 
@@ -345,6 +347,22 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
       @keyframes spin {
         to { transform: rotate(360deg); }
       }
+      
+      .shop-grid app-product-card {
+        animation: fadeInUp 0.4s ease both;
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(12px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
 
       @media (max-width: 1100px) {
         .shop-grid {
@@ -381,6 +399,7 @@ export class ShopComponent implements OnInit {
   private router = inject(Router);
   private itemService = inject(ItemService);
   private categoryService = inject(CategoryService);
+  private languageService = inject(LanguageService);
 
   categories = signal<Category[]>([]);
   items = signal<Item[]>([]);
@@ -389,6 +408,18 @@ export class ShopComponent implements OnInit {
   selectedCategoryId = signal<string>('');
   searchQuery = signal<string>('');
   selectedSort = signal<string>('newest');
+
+  constructor() {
+    effect(() => {
+      const currentLang = this.languageService.currentLang();
+      if (currentLang) {
+        this.categoryService.getCategories().subscribe({
+          next: (cats) => this.categories.set(cats),
+        });
+        this.loadItems();
+      }
+    });
+  }
 
   ngOnInit() {
     this.categoryService.getCategories().subscribe({

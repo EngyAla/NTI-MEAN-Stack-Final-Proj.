@@ -1,5 +1,6 @@
 const Order = require('../models/Order');
 const Item = require('../models/Item');
+const { getRequestedLanguage, localizeOrder } = require('../utils/localization');
 
 /**
  * Generate human-friendly order identifier
@@ -19,19 +20,26 @@ const generateOrderNumber = () => {
 const createOrder = async (req, res, next) => {
   try {
     const { customer, items } = req.body;
+    const lang = getRequestedLanguage(req);
 
     // Validate customer details
     if (!customer || !customer.fullName || !customer.phone || !customer.address) {
       return res.status(400).json({
         success: false,
-        message: 'Full name, phone number, and delivery address are required.',
+        message:
+          lang === 'ar'
+            ? 'الاسم الكامل، ورقم الهاتف، وعنوان التوصيل كلها حقول مطلوبة.'
+            : 'Full name, phone number, and delivery address are required.',
       });
     }
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'Order must contain at least one item.',
+        message:
+          lang === 'ar'
+            ? 'يجب أن يحتوي الطلب على قطعة واحدة على الأقل.'
+            : 'Order must contain at least one item.',
       });
     }
 
@@ -59,24 +67,35 @@ const createOrder = async (req, res, next) => {
         });
       }
 
+      const itemNameEn = typeof itemDoc.name === 'object' ? itemDoc.name.en : itemDoc.name;
+      const itemNameAr = typeof itemDoc.name === 'object' ? itemDoc.name.ar : itemDoc.name;
+      const activeName = lang === 'ar' ? itemNameAr : itemNameEn;
+
       if (itemDoc.quantity < requestedQty) {
         return res.status(400).json({
           success: false,
-          message: `Insufficient stock for "${itemDoc.name}". Requested: ${requestedQty}. Please adjust your quantity.`,
+          message:
+            lang === 'ar'
+              ? `المخزون غير كافٍ لـ "${activeName}". المطلوب: ${requestedQty}. يرجى تعديل الكمية.`
+              : `Insufficient stock for "${activeName}". Requested: ${requestedQty}. Please adjust your quantity.`,
         });
       }
 
       const subtotal = itemDoc.price * requestedQty;
       calculatedTotalPrice += subtotal;
 
-      // Historical snapshot
+      // Historical bilingual snapshot
       orderItems.push({
         item: itemDoc._id,
-        name: itemDoc.name,
+        name: {
+          en: itemNameEn,
+          ar: itemNameAr,
+        },
         price: itemDoc.price,
         quantity: requestedQty,
         subtotal,
-        imageUrl: itemDoc.imageUrl,
+        imageUrl: itemDoc.imageUrl || itemDoc.image || '',
+        image: itemDoc.imageUrl || itemDoc.image || '',
       });
     }
 
@@ -97,16 +116,19 @@ const createOrder = async (req, res, next) => {
           );
         }
 
+        const fallbackName = typeof oi.name === 'object' ? (oi.name[lang] || oi.name.en) : oi.name;
         return res.status(400).json({
           success: false,
-          message: `Stock conflict occurred while reserving "${oi.name}". Please review your cart and try again.`,
+          message:
+            lang === 'ar'
+              ? `حدث تعارض في المخزون أثناء حجز "${fallbackName}". يرجى مراجعة حقيبة التسوق والمحاولة مجدداً.`
+              : `Stock conflict occurred while reserving "${fallbackName}". Please review your cart and try again.`,
         });
       }
     }
 
     // Stage 3: Create Order document
     let orderNumber = generateOrderNumber();
-    // Guarantee uniqueness
     while (await Order.findOne({ orderNumber })) {
       orderNumber = generateOrderNumber();
     }
@@ -125,19 +147,16 @@ const createOrder = async (req, res, next) => {
       internalNotes: '',
     });
 
+    const localized = localizeOrder(order, lang);
+
     res.status(201).json({
       success: true,
+      lang,
       message:
-        'Your order has been received successfully. Our concierge manager will contact you shortly by phone to confirm order details and delivery arrangement.',
-      data: {
-        _id: order._id,
-        orderNumber: order.orderNumber,
-        customer: order.customer,
-        items: order.items,
-        totalPrice: order.totalPrice,
-        status: order.status,
-        createdAt: order.createdAt,
-      },
+        lang === 'ar'
+          ? 'تم استلام طلبكم بنجاح. سيتواصل معكم مدير البوتيك هاتفياً لتأكيد التفاصيل وموعد التسليم.'
+          : 'Your order has been received successfully. Our concierge manager will contact you shortly by phone to confirm order details and delivery arrangement.',
+      data: localized,
     });
   } catch (error) {
     next(error);
@@ -152,6 +171,7 @@ const createOrder = async (req, res, next) => {
 const getOrders = async (req, res, next) => {
   try {
     const { status, search } = req.query;
+    const lang = getRequestedLanguage(req);
     const filter = {};
 
     if (status && ['opened', 'closed'].includes(status.toLowerCase())) {
@@ -168,12 +188,15 @@ const getOrders = async (req, res, next) => {
 
     const orders = await Order.find(filter)
       .sort({ createdAt: -1 })
-      .populate('items.item', 'name imageUrl category');
+      .populate('items.item');
+
+    const localizedOrders = orders.map((ord) => localizeOrder(ord, lang));
 
     res.status(200).json({
       success: true,
-      count: orders.length,
-      data: orders,
+      lang,
+      count: localizedOrders.length,
+      data: localizedOrders,
     });
   } catch (error) {
     next(error);
@@ -187,10 +210,8 @@ const getOrders = async (req, res, next) => {
  */
 const getOrderById = async (req, res, next) => {
   try {
-    const order = await Order.findById(req.params.id).populate(
-      'items.item',
-      'name imageUrl category'
-    );
+    const lang = getRequestedLanguage(req);
+    const order = await Order.findById(req.params.id).populate('items.item');
 
     if (!order) {
       return res.status(404).json({
@@ -199,9 +220,12 @@ const getOrderById = async (req, res, next) => {
       });
     }
 
+    const localized = localizeOrder(order, lang);
+
     res.status(200).json({
       success: true,
-      data: order,
+      lang,
+      data: localized,
     });
   } catch (error) {
     next(error);
@@ -216,6 +240,7 @@ const getOrderById = async (req, res, next) => {
 const updateOrderStatus = async (req, res, next) => {
   try {
     const { status } = req.body;
+    const lang = getRequestedLanguage(req);
 
     if (!status || !['opened', 'closed'].includes(status.toLowerCase())) {
       return res.status(400).json({
@@ -236,10 +261,13 @@ const updateOrderStatus = async (req, res, next) => {
     order.status = status.toLowerCase();
     await order.save();
 
+    const localized = localizeOrder(order, lang);
+
     res.status(200).json({
       success: true,
+      lang,
       message: `Order status updated to "${order.status}".`,
-      data: order,
+      data: localized,
     });
   } catch (error) {
     next(error);
@@ -254,6 +282,7 @@ const updateOrderStatus = async (req, res, next) => {
 const updateOrderNotes = async (req, res, next) => {
   try {
     const { internalNotes } = req.body;
+    const lang = getRequestedLanguage(req);
 
     const order = await Order.findById(req.params.id);
 
@@ -267,10 +296,13 @@ const updateOrderNotes = async (req, res, next) => {
     order.internalNotes = internalNotes !== undefined ? String(internalNotes).trim() : '';
     await order.save();
 
+    const localized = localizeOrder(order, lang);
+
     res.status(200).json({
       success: true,
+      lang,
       message: 'Internal order notes updated successfully.',
-      data: order,
+      data: localized,
     });
   } catch (error) {
     next(error);

@@ -4,17 +4,19 @@ import { RouterModule } from '@angular/router';
 import { CartService } from '../../../core/services/cart.service';
 import { FavoriteService } from '../../../core/services/favorite.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { TranslatePipe } from '../../../core/pipes/translate.pipe';
+import { LanguageSwitcherComponent } from '../language-switcher/language-switcher.component';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslatePipe, LanguageSwitcherComponent],
   template: `
     <!-- Top Announcement Bar -->
     <div class="announcement-bar">
       <div class="container text-center">
         <span class="announcement-text">
-          Complimentary White-Glove Concierge Delivery & Bespoke Velvet Packaging
+          {{ 'navigation.announcement' | translate }}
         </span>
       </div>
     </div>
@@ -43,24 +45,27 @@ import { AuthService } from '../../../core/services/auth.service';
         <!-- Brand Identity Logo -->
         <div class="nav-brand">
           <a routerLink="/" class="brand-link" (click)="mobileMenuOpen.set(false)">
-            <span class="brand-name">AURELIA</span>
-            <span class="brand-sub">ATELIER</span>
+            <span class="brand-name">{{ 'navigation.brand' | translate }}</span>
+            <span class="brand-sub">{{ 'navigation.brandSub' | translate }}</span>
           </a>
         </div>
 
         <!-- Desktop Navigation Links -->
         <nav class="nav-links">
-          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-link">Home</a>
-          <a routerLink="/shop" routerLinkActive="active" class="nav-link">Shop Collection</a>
-          <a routerLink="/shop" [queryParams]="{ category: 'handbags' }" class="nav-link">Handbags</a>
-          <a routerLink="/shop" [queryParams]="{ category: 'timepieces' }" class="nav-link">Timepieces</a>
-          <a routerLink="/shop" [queryParams]="{ category: 'jewelry' }" class="nav-link">Joaillerie</a>
+          <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="nav-link">{{ 'navigation.home' | translate }}</a>
+          <a routerLink="/shop" routerLinkActive="active" class="nav-link">{{ 'navigation.shop' | translate }}</a>
+          <a routerLink="/shop" [queryParams]="{ category: 'handbags' }" class="nav-link">{{ 'navigation.handbags' | translate }}</a>
+          <a routerLink="/shop" [queryParams]="{ category: 'timepieces' }" class="nav-link">{{ 'navigation.timepieces' | translate }}</a>
+          <a routerLink="/shop" [queryParams]="{ category: 'jewelry' }" class="nav-link">{{ 'navigation.jewelry' | translate }}</a>
         </nav>
 
         <!-- Right Action Icons -->
         <div class="nav-actions">
+          <!-- Language Switcher -->
+          <app-language-switcher></app-language-switcher>
+
           <!-- Wishlist -->
-          <a routerLink="/favorites" class="action-icon-btn" title="Wishlist">
+          <a routerLink="/favorites" class="action-icon-btn" [title]="'navigation.wishlist' | translate">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
             </svg>
@@ -70,7 +75,7 @@ import { AuthService } from '../../../core/services/auth.service';
           </a>
 
           <!-- Shopping Bag -->
-          <a routerLink="/cart" class="action-icon-btn bag-btn" title="Shopping Bag">
+          <a routerLink="/cart" class="action-icon-btn bag-btn" [title]="'navigation.bag' | translate">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
               <line x1="3" y1="6" x2="21" y2="6"></line>
@@ -85,7 +90,7 @@ import { AuthService } from '../../../core/services/auth.service';
           <a
             [routerLink]="authService.isAuthenticated() ? '/manager/dashboard' : '/manager/login'"
             class="action-icon-btn manager-link"
-            [title]="authService.isAuthenticated() ? 'Manager Dashboard' : 'Manager Portal'"
+            [title]="authService.isAuthenticated() ? ('manager.nav.overview' | translate) : ('navigation.managerPortal' | translate)"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -98,13 +103,16 @@ import { AuthService } from '../../../core/services/auth.service';
       <!-- Mobile Navigation Drawer -->
       <div class="mobile-drawer" *ngIf="mobileMenuOpen()">
         <div class="mobile-drawer-inner">
-          <a routerLink="/" (click)="mobileMenuOpen.set(false)" class="mobile-nav-link">Home</a>
-          <a routerLink="/shop" (click)="mobileMenuOpen.set(false)" class="mobile-nav-link">All Accessories</a>
+          <div class="mobile-lang-row">
+            <app-language-switcher></app-language-switcher>
+          </div>
+          <a routerLink="/" (click)="mobileMenuOpen.set(false)" class="mobile-nav-link">{{ 'navigation.home' | translate }}</a>
+          <a routerLink="/shop" (click)="mobileMenuOpen.set(false)" class="mobile-nav-link">{{ 'navigation.allAccessories' | translate }}</a>
           <a routerLink="/favorites" (click)="mobileMenuOpen.set(false)" class="mobile-nav-link">
-            My Wishlist ({{ favoriteService.favoriteCount() }})
+            {{ 'navigation.wishlist' | translate }} ({{ favoriteService.favoriteCount() }})
           </a>
           <a routerLink="/cart" (click)="mobileMenuOpen.set(false)" class="mobile-nav-link">
-            Shopping Bag ({{ cartService.cartCount() }})
+            {{ 'navigation.bag' | translate }} ({{ cartService.cartCount() }})
           </a>
           <div class="mobile-divider"></div>
           <a
@@ -112,7 +120,7 @@ import { AuthService } from '../../../core/services/auth.service';
             (click)="mobileMenuOpen.set(false)"
             class="mobile-nav-link manager-portal-text"
           >
-            Manager Portal
+            {{ 'navigation.managerPortal' | translate }}
           </a>
         </div>
       </div>
@@ -284,6 +292,12 @@ import { AuthService } from '../../../core/services/auth.service';
         display: flex;
         flex-direction: column;
         gap: 1rem;
+      }
+
+      .mobile-lang-row {
+        display: flex;
+        justify-content: flex-start;
+        padding-bottom: 0.5rem;
       }
 
       .mobile-nav-link {

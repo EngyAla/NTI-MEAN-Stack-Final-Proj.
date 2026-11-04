@@ -3,26 +3,27 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { DashboardService } from '../../../core/services/dashboard.service';
 import { DashboardStats } from '../../../core/models/ecommerce.model';
+import { TranslatePipe } from '../../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-manager-dashboard',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslatePipe],
   template: `
     <div class="dashboard-overview">
       <!-- Page Header -->
       <div class="page-title-row">
         <div>
-          <h1 class="page-title">Executive Dashboard</h1>
-          <p class="page-desc">Overview of boutique operations, active catalog, and client telephone orders.</p>
+          <h1 class="page-title">{{ 'manager.stats.title' | translate }}</h1>
+          <p class="page-desc">{{ 'manager.stats.desc' | translate }}</p>
         </div>
 
         <div class="header-actions">
           <a routerLink="/manager/items" class="btn btn-outline btn-sm">
-            Manage Items
+            {{ 'manager.stats.manageItems' | translate }}
           </a>
           <a routerLink="/manager/orders" class="btn btn-primary btn-sm">
-            View All Orders
+            {{ 'manager.stats.viewAllOrders' | translate }}
           </a>
         </div>
       </div>
@@ -32,7 +33,7 @@ import { DashboardStats } from '../../../core/models/ecommerce.model';
         <!-- Total Categories -->
         <div class="stat-card">
           <div class="stat-header">
-            <span class="stat-label">Categories</span>
+            <span class="stat-label">{{ 'manager.stats.categories' | translate }}</span>
             <div class="stat-icon-pill">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
@@ -41,13 +42,13 @@ import { DashboardStats } from '../../../core/models/ecommerce.model';
             </div>
           </div>
           <div class="stat-value">{{ stats()?.totalCategories }}</div>
-          <span class="stat-foot">Curated Departments</span>
+          <span class="stat-foot">{{ 'manager.nav.categories' | translate }}</span>
         </div>
 
         <!-- Total Items -->
         <div class="stat-card">
           <div class="stat-header">
-            <span class="stat-label">Total Items</span>
+            <span class="stat-label">{{ 'manager.stats.items' | translate }}</span>
             <div class="stat-icon-pill">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
@@ -57,13 +58,13 @@ import { DashboardStats } from '../../../core/models/ecommerce.model';
             </div>
           </div>
           <div class="stat-value">{{ stats()?.totalItems }}</div>
-          <span class="stat-foot">Active Accessories</span>
+          <span class="stat-foot">{{ 'manager.nav.items' | translate }}</span>
         </div>
 
         <!-- Total Orders -->
         <div class="stat-card">
           <div class="stat-header">
-            <span class="stat-label">Total Orders</span>
+            <span class="stat-label">{{ 'manager.stats.orders' | translate }}</span>
             <div class="stat-icon-pill">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <rect x="1" y="3" width="15" height="13"></rect>
@@ -74,27 +75,27 @@ import { DashboardStats } from '../../../core/models/ecommerce.model';
             </div>
           </div>
           <div class="stat-value">{{ stats()?.totalOrders }}</div>
-          <span class="stat-foot">Cumulative Inquiries</span>
+          <span class="stat-foot">{{ 'manager.nav.orders' | translate }}</span>
         </div>
 
         <!-- Opened Orders -->
         <div class="stat-card alert-card">
           <div class="stat-header">
-            <span class="stat-label">Opened Orders</span>
-            <span class="badge badge-opened">Pending Call</span>
+            <span class="stat-label">{{ 'manager.stats.openedOrders' | translate }}</span>
+            <span class="badge badge-opened">{{ 'manager.stats.pendingCall' | translate }}</span>
           </div>
           <div class="stat-value stat-opened">{{ stats()?.openedOrders }}</div>
-          <span class="stat-foot">Requires phone verification</span>
+          <span class="stat-foot">{{ 'manager.stats.pendingCall' | translate }}</span>
         </div>
 
         <!-- Closed Orders -->
         <div class="stat-card">
           <div class="stat-header">
-            <span class="stat-label">Closed Orders</span>
-            <span class="badge badge-closed">Fulfilled</span>
+            <span class="stat-label">{{ 'manager.stats.closedOrders' | translate }}</span>
+            <span class="badge badge-closed">{{ 'manager.stats.fulfilled' | translate }}</span>
           </div>
           <div class="stat-value stat-closed">{{ stats()?.closedOrders }}</div>
-          <span class="stat-foot">Confirmed & Delivered</span>
+          <span class="stat-foot">{{ 'manager.stats.fulfilled' | translate }}</span>
         </div>
       </div>
 
@@ -109,11 +110,11 @@ import { DashboardStats } from '../../../core/models/ecommerce.model';
       <div class="recent-orders-card" *ngIf="stats()?.recentOrders">
         <div class="card-header-bar">
           <div>
-            <h3 class="card-title">Recent Telephone Orders</h3>
-            <p class="card-subtitle">Latest client order submissions awaiting phone confirmation or completed.</p>
+            <h3 class="card-title">{{ 'manager.stats.recentOrders' | translate }}</h3>
+            <p class="card-subtitle">{{ 'manager.stats.recentOrdersDesc' | translate }}</p>
           </div>
           <a routerLink="/manager/orders" class="btn btn-outline btn-sm">
-            View All in Orders Manager
+            {{ 'manager.stats.viewAllOrders' | translate }}
           </a>
         </div>
 
@@ -121,13 +122,13 @@ import { DashboardStats } from '../../../core/models/ecommerce.model';
           <table class="luxury-table" *ngIf="stats()!.recentOrders.length > 0; else noRecentOrders">
             <thead>
               <tr>
-                <th>Order Ref</th>
-                <th>Client Name</th>
-                <th>Phone Number</th>
-                <th>Order Date</th>
-                <th>Total Amount</th>
-                <th>Current Status</th>
-                <th>Action</th>
+                <th>{{ 'checkout.orderRef' | translate }}</th>
+                <th>{{ 'checkout.fullName' | translate }}</th>
+                <th>{{ 'checkout.phone' | translate }}</th>
+                <th>{{ 'common.date' | translate }}</th>
+                <th>{{ 'common.total' | translate }}</th>
+                <th>{{ 'common.status' | translate }}</th>
+                <th>{{ 'common.actions' | translate }}</th>
               </tr>
             </thead>
             <tbody>
@@ -153,12 +154,12 @@ import { DashboardStats } from '../../../core/models/ecommerce.model';
                       'badge-closed': ord.status === 'closed'
                     }"
                   >
-                    {{ ord.status }}
+                    {{ ord.status === 'opened' ? ('manager.stats.pendingCall' | translate) : ('manager.stats.fulfilled' | translate) }}
                   </span>
                 </td>
                 <td>
                   <a routerLink="/manager/orders" class="btn btn-ghost btn-sm">
-                    Manage &rarr;
+                    {{ 'manager.orders.viewDetails' | translate }} &rarr;
                   </a>
                 </td>
               </tr>

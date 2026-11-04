@@ -1,7 +1,8 @@
 /* ==========================================================================
-   AURELIA ATELIER - LUXURY ACCESSORIES DESIGN SYSTEM
+   AURELIA ATELIER - LUXURY ACCESSORIES DESIGN SYSTEM (BILINGUAL EN & AR)
    Palette: Warm Ivory, Cream, Soft Beige, Champagne Gold, Espresso Dark Brown
-   Typography: Cormorant Garamond (Serif) & Plus Jakarta Sans (Clean Sans)
+   Typography: Cormorant Garamond & Plus Jakarta Sans (EN)
+               Amiri & Cairo (AR)
    ========================================================================== */
 
 :root {
@@ -44,6 +45,8 @@
   /* Typography */
   --font-serif: 'Cormorant Garamond', Georgia, serif;
   --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-arabic-serif: 'Amiri', 'Cormorant Garamond', Georgia, serif;
+  --font-arabic-sans: 'Cairo', 'Plus Jakarta Sans', -apple-system, sans-serif;
 
   /* Elevation */
   --shadow-sm: 0 2px 8px rgba(32, 25, 21, 0.04);
@@ -83,6 +86,63 @@ body.aurelia-app {
   color: var(--color-text-primary);
   background-color: var(--color-canvas);
   min-height: 100vh;
+  text-align: start;
+}
+
+/* ==========================================================================
+   RTL Styles & Overrides
+   ========================================================================== */
+html[dir="rtl"],
+body.rtl {
+  font-family: var(--font-arabic-sans);
+  direction: rtl;
+  text-align: start;
+
+  h1, h2, h3, h4, h5, h6,
+  .font-serif {
+    font-family: var(--font-arabic-serif);
+    letter-spacing: 0 !important;
+  }
+
+  .nav-brand .brand-sub,
+  .section-tag,
+  .badge,
+  .btn,
+  .pill-btn,
+  .cat-explore-btn,
+  .stat-label {
+    letter-spacing: 0.04em !important;
+  }
+
+  /* Flip Select Icon in RTL */
+  select.form-control {
+    background-position: left 1rem center;
+    padding-inline-start: 1rem;
+    padding-inline-end: 2.5rem;
+  }
+
+  /* Toasts in RTL */
+  .toast-container {
+    right: auto;
+    left: 2rem;
+  }
+
+  .toast {
+    border-left: none;
+    border-right: 3px solid var(--color-gold);
+
+    &.toast-success {
+      border-right-color: #4A9362;
+    }
+    &.toast-error {
+      border-right-color: #C04343;
+    }
+  }
+
+  /* Breadcrumb separator */
+  .breadcrumb-nav .sep {
+    transform: rotate(180deg);
+  }
 }
 
 /* Headings */
@@ -92,7 +152,7 @@ h1, h2, h3, h4, h5, h6,
   font-weight: 500;
   letter-spacing: -0.01em;
   color: var(--color-espresso);
-  line-height: 1.25;
+  line-height: 1.3;
 }
 
 h1 { font-size: clamp(2.2rem, 4vw, 3.5rem); }
@@ -122,24 +182,24 @@ img {
 .container {
   width: 100%;
   max-width: 1280px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+  margin-inline-start: auto;
+  margin-inline-end: auto;
+  padding-inline-start: 1.5rem;
+  padding-inline-end: 1.5rem;
 }
 
 .container-fluid {
   width: 100%;
-  padding-left: 2rem;
-  padding-right: 2rem;
+  padding-inline-start: 2rem;
+  padding-inline-end: 2rem;
 }
 
 .container-narrow {
   max-width: 860px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 1.5rem;
-  padding-right: 1.5rem;
+  margin-inline-start: auto;
+  margin-inline-end: auto;
+  padding-inline-start: 1.5rem;
+  padding-inline-end: 1.5rem;
 }
 
 /* Section Spacing */
@@ -188,7 +248,7 @@ img {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  font-family: var(--font-sans);
+  font-family: inherit;
   font-size: 0.8125rem;
   font-weight: 600;
   letter-spacing: 0.12em;
@@ -283,6 +343,39 @@ img {
   border-radius: var(--radius-full);
 }
 
+/* Language Switcher Pill Button */
+.lang-switcher-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.85rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--color-border);
+  background-color: rgba(255, 255, 255, 0.8);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-espresso);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  line-height: 1;
+
+  &:hover {
+    background-color: #FFFFFF;
+    border-color: var(--color-gold);
+    color: var(--color-gold-dark);
+  }
+
+  .active-code {
+    color: var(--color-gold-dark);
+    font-weight: 700;
+  }
+
+  .divider-slash {
+    opacity: 0.35;
+    font-size: 0.7rem;
+  }
+}
+
 /* Badges */
 .badge {
   display: inline-flex;
@@ -330,28 +423,31 @@ img {
     font-size: 0.8rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     color: var(--color-text-primary);
     margin-bottom: 0.5rem;
+    text-align: start;
   }
 
   .form-hint {
     font-size: 0.75rem;
     color: var(--color-text-muted);
     margin-top: 0.35rem;
+    text-align: start;
   }
 
   .form-error {
     font-size: 0.78rem;
     color: var(--danger-text);
     margin-top: 0.35rem;
+    text-align: start;
   }
 }
 
 .form-control {
   width: 100%;
   padding: 0.85rem 1rem;
-  font-family: var(--font-sans);
+  font-family: inherit;
   font-size: 0.92rem;
   color: var(--color-text-primary);
   background-color: #FFFFFF;
@@ -359,6 +455,7 @@ img {
   border-radius: var(--radius-sm);
   transition: var(--transition-fast);
   outline: none;
+  text-align: start;
 
   &:focus {
     border-color: var(--color-gold);
@@ -386,7 +483,7 @@ select.form-control {
   background-repeat: no-repeat;
   background-position: right 1rem center;
   background-size: 1rem;
-  padding-right: 2.5rem;
+  padding-inline-end: 2.5rem;
 }
 
 /* Cards */
@@ -414,18 +511,19 @@ select.form-control {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  text-align: left;
+  text-align: start;
 
   th {
     padding: 1rem 1.25rem;
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.08em;
     color: var(--color-text-secondary);
     background-color: var(--color-cream);
     border-bottom: 1px solid var(--color-border);
     white-space: nowrap;
+    text-align: start;
   }
 
   td {
@@ -435,6 +533,7 @@ select.form-control {
     border-bottom: 1px solid var(--color-border-subtle);
     background-color: #FFFFFF;
     vertical-align: middle;
+    text-align: start;
   }
 
   tbody tr {
@@ -466,12 +565,13 @@ select.form-control {
   background: #FFFFFF;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  max-width: 620px;
+  max-width: 80px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: var(--shadow-lg);
   animation: modalEnter 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: start;
 }
 
 @keyframes modalEnter {
@@ -501,6 +601,25 @@ select.form-control {
 
 .modal-body {
   padding: 1.75rem;
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .modal-dialog {
+    max-width: 1050px;
+  }
+}
+
+@media (max-width: 768px) {
+  .modal-dialog {
+    width: 100%;
+    max-width: 100%;
+    max-height: 95vh;
+  }
+
+  .modal-body {
+    padding: 1rem;
+  }
 }
 
 .modal-footer {
@@ -580,4 +699,5 @@ select.form-control {
 .gap-5 { gap: 2rem; }
 .w-100 { width: 100%; }
 .text-center { text-align: center; }
-.text-right { text-align: right; }
+.text-start { text-align: start; }
+.text-end { text-align: end; }

@@ -3,15 +3,28 @@ const mongoose = require('mongoose');
 const itemSchema = new mongoose.Schema(
   {
     name: {
-      type: String,
-      required: [true, 'Item name is required'],
-      trim: true,
-      minlength: [2, 'Item name must be at least 2 characters'],
+      en: {
+        type: String,
+        required: [true, 'English item name is required'],
+        trim: true,
+      },
+      ar: {
+        type: String,
+        required: [true, 'Arabic item name is required'],
+        trim: true,
+      },
     },
     description: {
-      type: String,
-      required: [true, 'Item description is required'],
-      trim: true,
+      en: {
+        type: String,
+        required: [true, 'English item description is required'],
+        trim: true,
+      },
+      ar: {
+        type: String,
+        required: [true, 'Arabic item description is required'],
+        trim: true,
+      },
     },
     price: {
       type: Number,
@@ -34,14 +47,26 @@ const itemSchema = new mongoose.Schema(
       required: [true, 'Primary image URL is required'],
       trim: true,
     },
+    image: {
+      type: String,
+      trim: true,
+      default: '',
+    },
     images: {
       type: [String],
       default: [],
     },
     material: {
-      type: String,
-      trim: true,
-      default: 'Full-Grain Italian Calfskin / Gilded Brass',
+      en: {
+        type: String,
+        trim: true,
+        default: 'Full-Grain Italian Calfskin / Gilded Brass',
+      },
+      ar: {
+        type: String,
+        trim: true,
+        default: 'جلد عجل إيطالي نخب أول / نحاس مطلي بذهب عيار 18',
+      },
     },
     dimensions: {
       type: String,
@@ -59,7 +84,14 @@ const itemSchema = new mongoose.Schema(
 );
 
 // Index for search & category filtering
-itemSchema.index({ name: 'text', description: 'text' });
+itemSchema.index({ 'name.en': 'text', 'name.ar': 'text', 'description.en': 'text', 'description.ar': 'text' });
 itemSchema.index({ category: 1 });
+
+// Synchronize imageUrl and image
+itemSchema.pre('save', function (next) {
+  if (this.image && !this.imageUrl) this.imageUrl = this.image;
+  if (this.imageUrl && !this.image) this.image = this.imageUrl;
+  if (typeof next === 'function') next();
+});
 
 module.exports = mongoose.model('Item', itemSchema);

@@ -1,6 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, map } from 'rxjs';
+import { Observable, map, tap } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { Category } from '../models/ecommerce.model';
 
@@ -26,11 +26,11 @@ export class CategoryService {
     return this.http.get<ApiResponse<Category>>(`${this.baseUrl}/${id}`).pipe(map((res) => res.data));
   }
 
-  createCategory(category: Partial<Category>): Observable<Category> {
+  createCategory(category: any): Observable<Category> {
     return this.http.post<ApiResponse<Category>>(this.baseUrl, category).pipe(map((res) => res.data));
   }
 
-  updateCategory(id: string, category: Partial<Category>): Observable<Category> {
+  updateCategory(id: string, category: any): Observable<Category> {
     return this.http.put<ApiResponse<Category>>(`${this.baseUrl}/${id}`, category).pipe(map((res) => res.data));
   }
 

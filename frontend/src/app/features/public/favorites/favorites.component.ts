@@ -5,20 +5,21 @@ import { FavoriteService } from '../../../core/services/favorite.service';
 import { CartService } from '../../../core/services/cart.service';
 import { ProductCardComponent } from '../../../shared/components/product-card/product-card.component';
 import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+import { TranslatePipe } from '../../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-favorites',
   standalone: true,
-  imports: [CommonModule, RouterModule, ProductCardComponent, EmptyStateComponent],
+  imports: [CommonModule, RouterModule, ProductCardComponent, EmptyStateComponent, TranslatePipe],
   template: `
     <div class="favorites-page">
       <!-- Header -->
       <section class="favorites-header">
         <div class="container text-center">
-          <span class="sub-label">Private Curation</span>
-          <h1 class="page-title">Your Atelier Wishlist</h1>
+          <span class="sub-label">{{ 'navigation.brand' | translate }} {{ 'navigation.brandSub' | translate }}</span>
+          <h1 class="page-title">{{ 'favorites.title' | translate }}</h1>
           <p class="page-desc">
-            Personal selections preserved for your consideration. Move pieces to your shopping bag whenever you are ready.
+            {{ 'favorites.desc' | translate }}
           </p>
         </div>
       </section>
@@ -29,7 +30,7 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
           <div *ngIf="favoriteService.favorites().length > 0; else emptyTpl">
             <div class="wishlist-bar">
               <span class="count-tag">
-                {{ favoriteService.favoriteCount() }} {{ favoriteService.favoriteCount() === 1 ? 'Piece' : 'Pieces' }} Saved
+                {{ favoriteService.favoriteCount() }} {{ 'favorites.piecesSaved' | translate }}
               </span>
             </div>
 
@@ -43,9 +44,9 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
 
           <ng-template #emptyTpl>
             <app-empty-state
-              title="Your Wishlist is Empty"
-              description="You haven’t preserved any creations yet. Explore our handcrafted handbags, timepieces, and jewelry to curate your personal collection."
-              actionText="Explore Atelier Catalog"
+              [title]="'favorites.emptyTitle' | translate"
+              [description]="'favorites.emptyDesc' | translate"
+              [actionText]="'favorites.emptyBtn' | translate"
               actionRoute="/shop"
             ></app-empty-state>
           </ng-template>

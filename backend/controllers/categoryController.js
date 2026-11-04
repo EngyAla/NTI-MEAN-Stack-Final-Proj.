@@ -1,26 +1,24 @@
 const Category = require('../models/Category');
 const Item = require('../models/Item');
+const { getRequestedLanguage, localizeCategory } = require('../utils/localization');
 
 /**
- * @desc    Get all categories with item counts
+ * @desc    Get all categories with item counts and localization
  * @route   GET /api/categories
  * @access  Public
  */
 const getAllCategories = async (req, res, next) => {
   try {
-    const categories = await Category.find().sort({ name: 1 });
+    const lang = getRequestedLanguage(req);
+    const categories = await Category.find().sort({ createdAt: -1 });
 
-    // Populate item counts
+    // Populate item counts and localize
     const categoriesWithCount = await Promise.all(
       categories.map(async (cat) => {
         const count = await Item.countDocuments({ category: cat._id });
+        const localized = localizeCategory(cat, lang);
         return {
-          _id: cat._id,
-          name: cat.name,
-          description: cat.description,
-          imageUrl: cat.imageUrl,
-          createdAt: cat.createdAt,
-          updatedAt: cat.updatedAt,
+          ...localized,
           itemCount: count,
         };
       })
@@ -28,6 +26,7 @@ const getAllCategories = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
+      lang,
       count: categoriesWithCount.length,
       data: categoriesWithCount,
     });
@@ -43,6 +42,7 @@ const getAllCategories = async (req, res, next) => {
  */
 const getCategoryById = async (req, res, next) => {
   try {
+    const lang = getRequestedLanguage(req);
     const category = await Category.findById(req.params.id);
 
     if (!category) {
@@ -53,16 +53,13 @@ const getCategoryById = async (req, res, next) => {
     }
 
     const itemCount = await Item.countDocuments({ category: category._id });
+    const localized = localizeCategory(category, lang);
 
     res.status(200).json({
       success: true,
+      lang,
       data: {
-        _id: category._id,
-        name: category.name,
-        description: category.description,
-        imageUrl: category.imageUrl,
-        createdAt: category.createdAt,
-        updatedAt: category.updatedAt,
+        ...localized,
         itemCount,
       },
     });
@@ -72,48 +69,86 @@ const getCategoryById = async (req, res, next) => {
 };
 
 /**
- * @desc    Create new category
+ * Helper to normalize bilingual input
+ */
+const extractBilingualField = (input, fallbackEn = '', fallbackAr = '') => {
+  if (!input) return { en: fallbackEn, ar: fallbackAr };
+  if (typeof input === 'object') {
+    return {
+      en: input.en ? String(input.en).trim() : fallbackEn,
+      ar: input.ar ? String(input.ar).trim() : fallbackAr,
+    };
+  }
+  const str = String(input).trim();
+  return { en: str || fallbackEn, ar: str || fallbackAr };
+};
+
+/**
+ * @desc    Create new category (Manager only)
  * @route   POST /api/categories
  * @access  Private (Manager only)
  */
 const createCategory = async (req, res, next) => {
   try {
-    const { name, description, imageUrl } = req.body;
+    const { name, nameEn, nameAr, description, descriptionEn, descriptionAr, imageUrl, image } =
+      req.body;
 
-    if (!name || !name.trim()) {
+    const normalizedName = {
+      en: nameEn ? String(nameEn).trim() : (name && typeof name === 'object' ? String(name.en || '').trim() : String(name || '').trim()),
+      ar: nameAr ? String(nameAr).trim() : (name && typeof name === 'object' ? String(name.ar || '').trim() : ''),
+    };
+
+    const normalizedDesc = {
+      en: descriptionEn ? String(descriptionEn).trim() : (description && typeof description === 'object' ? String(description.en || '').trim() : (typeof description === 'string' ? description.trim() : '')),
+      ar: descriptionAr ? String(descriptionAr).trim() : (description && typeof description === 'object' ? String(description.ar || '').trim() : ''),
+    };
+
+    if (!normalizedName.en) {
       return res.status(400).json({
         success: false,
-        message: 'Category name is required.',
+        message: 'English category name is required.',
       });
     }
 
-    const existingCategory = await Category.findOne({
-      name: { $regex: new RegExp(`^${name.trim()}$`, 'i') },
+    if (!normalizedName.ar) {
+      return res.status(400).json({
+        success: false,
+        message: 'Arabic category name is required.',
+      });
+    }
+
+    // Check duplicate
+    const existing = await Category.findOne({
+      $or: [
+        { 'name.en': { $regex: new RegExp(`^${normalizedName.en}$`, 'i') } },
+        { 'name.ar': normalizedName.ar },
+      ],
     });
 
-    if (existingCategory) {
+    if (existing) {
       return res.status(400).json({
         success: false,
-        message: 'A category with this name already exists.',
+        message: 'A category with this name already exists in English or Arabic.',
       });
     }
+
+    const img = imageUrl ? imageUrl.trim() : (image ? image.trim() : '');
 
     const category = await Category.create({
-      name: name.trim(),
-      description: description ? description.trim() : '',
-      imageUrl: imageUrl ? imageUrl.trim() : '',
+      name: normalizedName,
+      description: normalizedDesc,
+      imageUrl: img,
+      image: img,
     });
+
+    const lang = getRequestedLanguage(req);
+    const localized = localizeCategory(category, lang);
 
     res.status(201).json({
       success: true,
       message: 'Category created successfully.',
       data: {
-        _id: category._id,
-        name: category.name,
-        description: category.description,
-        imageUrl: category.imageUrl,
-        createdAt: category.createdAt,
-        updatedAt: category.updatedAt,
+        ...localized,
         itemCount: 0,
       },
     });
@@ -123,13 +158,14 @@ const createCategory = async (req, res, next) => {
 };
 
 /**
- * @desc    Update category
+ * @desc    Update category (Manager only)
  * @route   PUT /api/categories/:id
  * @access  Private (Manager only)
  */
 const updateCategory = async (req, res, next) => {
   try {
-    const { name, description, imageUrl } = req.body;
+    const { name, nameEn, nameAr, description, descriptionEn, descriptionAr, imageUrl, image } =
+      req.body;
 
     let category = await Category.findById(req.params.id);
 
@@ -140,42 +176,60 @@ const updateCategory = async (req, res, next) => {
       });
     }
 
-    if (name && name.trim()) {
-      const duplicate = await Category.findOne({
-        _id: { $ne: req.params.id },
-        name: { $regex: new RegExp(`^${name.trim()}$`, 'i') },
+    // Update names
+    const currentName = typeof category.name === 'object' ? category.name : { en: category.name, ar: category.name };
+    const newEnName = nameEn !== undefined ? String(nameEn).trim() : (name && typeof name === 'object' && name.en !== undefined ? String(name.en).trim() : currentName.en);
+    const newArName = nameAr !== undefined ? String(nameAr).trim() : (name && typeof name === 'object' && name.ar !== undefined ? String(name.ar).trim() : currentName.ar);
+
+    if (!newEnName || !newArName) {
+      return res.status(400).json({
+        success: false,
+        message: 'Both English and Arabic category names are required.',
       });
-      if (duplicate) {
-        return res.status(400).json({
-          success: false,
-          message: 'Another category with this name already exists.',
-        });
-      }
-      category.name = name.trim();
     }
 
-    if (description !== undefined) {
-      category.description = description.trim();
+    // Check duplicate
+    const duplicate = await Category.findOne({
+      _id: { $ne: req.params.id },
+      $or: [
+        { 'name.en': { $regex: new RegExp(`^${newEnName}$`, 'i') } },
+        { 'name.ar': newArName },
+      ],
+    });
+
+    if (duplicate) {
+      return res.status(400).json({
+        success: false,
+        message: 'Another category with this name already exists.',
+      });
     }
 
-    if (imageUrl !== undefined) {
-      category.imageUrl = imageUrl.trim();
+    category.name = { en: newEnName, ar: newArName };
+
+    // Update descriptions
+    const currentDesc = typeof category.description === 'object' ? category.description : { en: category.description || '', ar: category.description || '' };
+    const newEnDesc = descriptionEn !== undefined ? String(descriptionEn).trim() : (description && typeof description === 'object' && description.en !== undefined ? String(description.en).trim() : currentDesc.en);
+    const newArDesc = descriptionAr !== undefined ? String(descriptionAr).trim() : (description && typeof description === 'object' && description.ar !== undefined ? String(description.ar).trim() : currentDesc.ar);
+    category.description = { en: newEnDesc, ar: newArDesc };
+
+    // Update image
+    if (imageUrl !== undefined || image !== undefined) {
+      const img = (imageUrl || image || '').trim();
+      category.imageUrl = img;
+      category.image = img;
     }
 
     await category.save();
 
     const itemCount = await Item.countDocuments({ category: category._id });
+    const lang = getRequestedLanguage(req);
+    const localized = localizeCategory(category, lang);
 
     res.status(200).json({
       success: true,
       message: 'Category updated successfully.',
       data: {
-        _id: category._id,
-        name: category.name,
-        description: category.description,
-        imageUrl: category.imageUrl,
-        createdAt: category.createdAt,
-        updatedAt: category.updatedAt,
+        ...localized,
         itemCount,
       },
     });
@@ -204,9 +258,10 @@ const deleteCategory = async (req, res, next) => {
     // Check if category contains products
     const itemCount = await Item.countDocuments({ category: category._id });
     if (itemCount > 0) {
+      const catDisplayName = typeof category.name === 'object' ? (category.name.en || category.name.ar) : category.name;
       return res.status(400).json({
         success: false,
-        message: `Cannot delete category "${category.name}". It still contains ${itemCount} item(s). Please reassign or delete these items first.`,
+        message: `Cannot delete category "${catDisplayName}". It still contains ${itemCount} item(s). Please reassign or delete these items first.`,
       });
     }
 
@@ -214,7 +269,7 @@ const deleteCategory = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: `Category "${category.name}" was deleted successfully.`,
+      message: 'Category was deleted successfully.',
     });
   } catch (error) {
     next(error);

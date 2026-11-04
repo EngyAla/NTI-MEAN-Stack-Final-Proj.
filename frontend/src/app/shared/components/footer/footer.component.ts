@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
+import { TranslatePipe } from '../../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-footer',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslatePipe],
   template: `
     <footer class="luxury-footer">
       <div class="container footer-main">
@@ -16,53 +17,51 @@ import { RouterModule } from '@angular/router';
             <span class="brand-subtitle">ATELIER</span>
           </div>
           <p class="brand-desc">
-            An independent maison celebrating timeless aesthetics, artisan leathercraft, and Swiss horological mastery. Every accessory is thoughtfully sculpted for everyday elegance.
+            {{ 'footer.brandDesc' | translate }}
           </p>
           <div class="concierge-badge">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
             </svg>
-            <span>Personal Telephone Concierge: +1 (800) 482-3542</span>
+            <span>{{ 'footer.telephone' | translate }}: +1 (800) 482-3542</span>
           </div>
         </div>
 
         <!-- Col 2: The Collections -->
         <div class="footer-col">
-          <h4 class="col-title">Collections</h4>
+          <h4 class="col-title">{{ 'footer.collections' | translate }}</h4>
           <ul class="footer-links">
-            <li><a routerLink="/shop" [queryParams]="{ category: 'handbags' }">Handbags & Leathercraft</a></li>
-            <li><a routerLink="/shop" [queryParams]="{ category: 'timepieces' }">Fine Timepieces</a></li>
-            <li><a routerLink="/shop" [queryParams]="{ category: 'jewelry' }">Haute Joaillerie</a></li>
-            <li><a routerLink="/shop" [queryParams]="{ category: 'eyewear' }">Designer Eyewear</a></li>
-            <li><a routerLink="/shop" [queryParams]="{ category: 'belts' }">Artisan Belts</a></li>
-            <li><a routerLink="/shop" [queryParams]="{ category: 'silk' }">Silk & Accents</a></li>
+            <li><a routerLink="/shop" [queryParams]="{ category: 'handbags' }">{{ 'navigation.handbags' | translate }}</a></li>
+            <li><a routerLink="/shop" [queryParams]="{ category: 'timepieces' }">{{ 'navigation.timepieces' | translate }}</a></li>
+            <li><a routerLink="/shop" [queryParams]="{ category: 'jewelry' }">{{ 'navigation.jewelry' | translate }}</a></li>
+            <li><a routerLink="/shop" [queryParams]="{ category: 'eyewear' }">{{ 'navigation.eyewear' | translate }}</a></li>
+            <li><a routerLink="/shop" [queryParams]="{ category: 'belts' }">{{ 'navigation.belts' | translate }}</a></li>
+            <li><a routerLink="/shop" [queryParams]="{ category: 'silk' }">{{ 'navigation.silk' | translate }}</a></li>
           </ul>
         </div>
 
         <!-- Col 3: Client Care -->
         <div class="footer-col">
-          <h4 class="col-title">Client Care</h4>
+          <h4 class="col-title">{{ 'footer.clientCare' | translate }}</h4>
           <ul class="footer-links">
-            <li><a routerLink="/shop">Bespoke Concierge</a></li>
-            <li><a routerLink="/favorites">Saved Wishlist</a></li>
-            <li><a routerLink="/cart">Shopping Bag</a></li>
-            <li><a routerLink="/manager/login">Private Atelier Management</a></li>
-            <li><span class="muted-link">Phone Order Confirmation Policy</span></li>
-            <li><span class="muted-link">Authenticity Guarantee</span></li>
+            <li><a routerLink="/shop">{{ 'navigation.shop' | translate }}</a></li>
+            <li><a routerLink="/favorites">{{ 'navigation.wishlist' | translate }}</a></li>
+            <li><a routerLink="/cart">{{ 'navigation.bag' | translate }}</a></li>
+            <li><a routerLink="/manager/login">{{ 'navigation.managerPortal' | translate }}</a></li>
+            <li><span class="muted-link">{{ 'product.phoneNoticeTitle' | translate }}</span></li>
           </ul>
         </div>
 
         <!-- Col 4: Atelier Newsletter -->
         <div class="footer-col newsletter-col">
-          <h4 class="col-title">Atelier Gazette</h4>
+          <h4 class="col-title">{{ 'footer.newsletter' | translate }}</h4>
           <p class="newsletter-desc">
-            Receive private invitations to private viewings, rare horological releases, and limited leather editions.
+            {{ 'footer.newsletterDesc' | translate }}
           </p>
           <form class="newsletter-form" (submit)="$event.preventDefault()">
-            <input type="email" placeholder="Enter your email address" class="newsletter-input" required />
-            <button type="submit" class="btn btn-gold btn-sm">Subscribe</button>
+            <input type="email" placeholder="atelier@clientele.com" class="newsletter-input" required />
+            <button type="submit" class="btn btn-gold btn-sm">{{ 'footer.subscribe' | translate }}</button>
           </form>
-          <span class="privacy-note">We respect your complete privacy. Unsubscribe at any moment.</span>
         </div>
       </div>
 
@@ -70,14 +69,14 @@ import { RouterModule } from '@angular/router';
       <div class="footer-bottom">
         <div class="container footer-bottom-content">
           <span class="copyright">
-            &copy; 2026 Aurelia Atelier S.A. All rights reserved. English edition.
+            &copy; 2026 Aurelia Atelier S.A. {{ 'footer.rights' | translate }}
           </span>
           <div class="bottom-links">
-            <span class="bottom-tag">Handcrafted Quiet Luxury</span>
+            <span class="bottom-tag">{{ 'home.pillars.luxuryTitle' | translate }}</span>
             <span class="dot">•</span>
-            <span class="bottom-tag">Tuscan Leather</span>
+            <span class="bottom-tag">{{ 'home.pillars.artisanTitle' | translate }}</span>
             <span class="dot">•</span>
-            <span class="bottom-tag">Swiss Calibers</span>
+            <span class="bottom-tag">{{ 'home.pillars.packagingTitle' | translate }}</span>
           </div>
         </div>
       </div>

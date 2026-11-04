@@ -4,11 +4,12 @@ import { RouterModule } from '@angular/router';
 import { Item } from '../../../core/models/ecommerce.model';
 import { CartService } from '../../../core/services/cart.service';
 import { FavoriteService } from '../../../core/services/favorite.service';
+import { TranslatePipe } from '../../../core/pipes/translate.pipe';
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslatePipe],
   template: `
     <div class="product-card">
       <div class="card-media">
@@ -22,7 +23,7 @@ import { FavoriteService } from '../../../core/services/favorite.service';
           class="favorite-btn"
           [class.is-active]="favoriteService.isFavorite(item._id)"
           (click)="toggleWishlist($event)"
-          [attr.aria-label]="favoriteService.isFavorite(item._id) ? 'Remove from wishlist' : 'Add to wishlist'"
+          [attr.aria-label]="favoriteService.isFavorite(item._id) ? ('product.removeFromWishlist' | translate) : ('product.addToWishlist' | translate)"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -47,7 +48,7 @@ import { FavoriteService } from '../../../core/services/favorite.service';
               <line x1="3" y1="6" x2="21" y2="6"></line>
               <path d="M16 10a4 4 0 0 1-8 0"></path>
             </svg>
-            Add to Bag
+            {{ 'product.addToBag' | translate }}
           </button>
         </div>
       </div>

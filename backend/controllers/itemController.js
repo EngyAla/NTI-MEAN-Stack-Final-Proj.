@@ -1,17 +1,9 @@
 const Item = require('../models/Item');
 const Category = require('../models/Category');
+const { getRequestedLanguage, localizeItem } = require('../utils/localization');
 
 /**
- * Helper to sanitize item for public consumption (removes quantity)
- */
-const sanitizePublicItem = (item) => {
-  const itemObj = item.toObject ? item.toObject() : { ...item };
-  delete itemObj.quantity;
-  return itemObj;
-};
-
-/**
- * @desc    Get all items (public or manager)
+ * @desc    Get all items (public or manager) with localization
  * @route   GET /api/items
  * @access  Public (without quantity) / Manager (with quantity)
  */
@@ -19,6 +11,7 @@ const getItems = async (req, res, next) => {
   try {
     const { category, search, featured, sort } = req.query;
     const isManager = Boolean(req.isManager || req.manager);
+    const lang = getRequestedLanguage(req);
 
     const filter = {};
 
@@ -31,9 +24,15 @@ const getItems = async (req, res, next) => {
     }
 
     if (search && search.trim()) {
+      const term = search.trim();
       filter.$or = [
-        { name: { $regex: search.trim(), $options: 'i' } },
-        { description: { $regex: search.trim(), $options: 'i' } },
+        { 'name.en': { $regex: term, $options: 'i' } },
+        { 'name.ar': { $regex: term, $options: 'i' } },
+        { 'description.en': { $regex: term, $options: 'i' } },
+        { 'description.ar': { $regex: term, $options: 'i' } },
+        // Fallback for legacy string fields
+        { name: { $regex: term, $options: 'i' } },
+        { description: { $regex: term, $options: 'i' } },
       ];
     }
 
@@ -41,19 +40,19 @@ const getItems = async (req, res, next) => {
     if (sort === 'price-asc') sortOption = { price: 1 };
     else if (sort === 'price-desc') sortOption = { price: -1 };
     else if (sort === 'newest') sortOption = { createdAt: -1 };
-    else if (sort === 'name-asc') sortOption = { name: 1 };
+    else if (sort === 'name-asc') sortOption = lang === 'ar' ? { 'name.ar': 1 } : { 'name.en': 1 };
 
-    // Projection: exclude quantity if not manager
-    const projection = isManager ? {} : { quantity: 0 };
-
-    const items = await Item.find(filter, projection)
-      .populate('category', 'name')
+    const items = await Item.find(filter)
+      .populate('category')
       .sort(sortOption);
+
+    const localizedItems = items.map((item) => localizeItem(item, lang, isManager));
 
     res.status(200).json({
       success: true,
-      count: items.length,
-      data: items,
+      lang,
+      count: localizedItems.length,
+      data: localizedItems,
     });
   } catch (error) {
     next(error);
@@ -61,13 +60,14 @@ const getItems = async (req, res, next) => {
 };
 
 /**
- * @desc    Get manager items (always includes stock quantity)
+ * @desc    Get manager items (always includes stock quantity and bilingual objects)
  * @route   GET /api/items/manager/all
  * @access  Private (Manager only)
  */
 const getManagerItems = async (req, res, next) => {
   try {
     const { category, search, sort } = req.query;
+    const lang = getRequestedLanguage(req);
     const filter = {};
 
     if (category) {
@@ -75,9 +75,14 @@ const getManagerItems = async (req, res, next) => {
     }
 
     if (search && search.trim()) {
+      const term = search.trim();
       filter.$or = [
-        { name: { $regex: search.trim(), $options: 'i' } },
-        { description: { $regex: search.trim(), $options: 'i' } },
+        { 'name.en': { $regex: term, $options: 'i' } },
+        { 'name.ar': { $regex: term, $options: 'i' } },
+        { 'description.en': { $regex: term, $options: 'i' } },
+        { 'description.ar': { $regex: term, $options: 'i' } },
+        { name: { $regex: term, $options: 'i' } },
+        { description: { $regex: term, $options: 'i' } },
       ];
     }
 
@@ -86,16 +91,18 @@ const getManagerItems = async (req, res, next) => {
     else if (sort === 'price-desc') sortOption = { price: -1 };
     else if (sort === 'quantity-asc') sortOption = { quantity: 1 };
     else if (sort === 'quantity-desc') sortOption = { quantity: -1 };
-    else if (sort === 'name-asc') sortOption = { name: 1 };
 
     const items = await Item.find(filter)
-      .populate('category', 'name')
+      .populate('category')
       .sort(sortOption);
+
+    const localizedItems = items.map((item) => localizeItem(item, lang, true));
 
     res.status(200).json({
       success: true,
-      count: items.length,
-      data: items,
+      lang,
+      count: localizedItems.length,
+      data: localizedItems,
     });
   } catch (error) {
     next(error);
@@ -110,9 +117,9 @@ const getManagerItems = async (req, res, next) => {
 const getItemById = async (req, res, next) => {
   try {
     const isManager = Boolean(req.isManager || req.manager);
-    const projection = isManager ? {} : { quantity: 0 };
+    const lang = getRequestedLanguage(req);
 
-    const item = await Item.findById(req.params.id, projection).populate('category', 'name');
+    const item = await Item.findById(req.params.id).populate('category');
 
     if (!item) {
       return res.status(404).json({
@@ -121,9 +128,12 @@ const getItemById = async (req, res, next) => {
       });
     }
 
+    const localized = localizeItem(item, lang, isManager);
+
     res.status(200).json({
       success: true,
-      data: item,
+      lang,
+      data: localized,
     });
   } catch (error) {
     next(error);
@@ -138,16 +148,19 @@ const getItemById = async (req, res, next) => {
 const getItemsByCategory = async (req, res, next) => {
   try {
     const isManager = Boolean(req.isManager || req.manager);
-    const projection = isManager ? {} : { quantity: 0 };
+    const lang = getRequestedLanguage(req);
 
-    const items = await Item.find({ category: req.params.categoryId }, projection)
-      .populate('category', 'name')
+    const items = await Item.find({ category: req.params.categoryId })
+      .populate('category')
       .sort({ createdAt: -1 });
+
+    const localizedItems = items.map((item) => localizeItem(item, lang, isManager));
 
     res.status(200).json({
       success: true,
-      count: items.length,
-      data: items,
+      lang,
+      count: localizedItems.length,
+      data: localizedItems,
     });
   } catch (error) {
     next(error);
@@ -158,11 +171,12 @@ const getItemsByCategory = async (req, res, next) => {
  * @desc    Validate cart quantities against stock (Public)
  * @route   POST /api/items/validate-cart
  * @access  Public
- * @note    Validates without exposing stock quantity
+ * @note    Validates without exposing exact stock quantity
  */
 const validateCart = async (req, res, next) => {
   try {
-    const { items } = req.body; // array of { itemId, quantity }
+    const { items } = req.body;
+    const lang = getRequestedLanguage(req);
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({
@@ -182,7 +196,10 @@ const validateCart = async (req, res, next) => {
         validationResults.push({
           itemId: cartItem.itemId,
           available: false,
-          message: 'This accessory is no longer available in our collection.',
+          message:
+            lang === 'ar'
+              ? 'هذه القطعة لم تعد متوفرة في مجموعتنا.'
+              : 'This accessory is no longer available in our collection.',
         });
         continue;
       }
@@ -190,28 +207,39 @@ const validateCart = async (req, res, next) => {
       const requestedQty = Number(cartItem.quantity) || 1;
       const isAvailable = item.quantity >= requestedQty;
 
+      const itemName =
+        typeof item.name === 'object'
+          ? (item.name[lang] || item.name.en || '')
+          : (item.name || '');
+
       if (!isAvailable) {
         allAvailable = false;
         validationResults.push({
           itemId: cartItem.itemId,
-          name: item.name,
+          name: itemName,
           available: false,
-          message: requestedQty > item.quantity 
-            ? `Requested quantity for "${item.name}" exceeds current stock.` 
-            : `"${item.name}" is currently out of stock.`,
+          message:
+            lang === 'ar'
+              ? requestedQty > item.quantity
+                ? `الكمية المطلوبة لـ "${itemName}" تتجاوز المخزون الحالي.`
+                : `"${itemName}" غير متوفر حالياً في المخزن.`
+              : requestedQty > item.quantity
+              ? `Requested quantity for "${itemName}" exceeds current stock.`
+              : `"${itemName}" is currently out of stock.`,
         });
       } else {
         validationResults.push({
           itemId: cartItem.itemId,
-          name: item.name,
+          name: itemName,
           available: true,
-          message: 'In stock.',
+          message: lang === 'ar' ? 'متوفر' : 'In stock.',
         });
       }
     }
 
     res.status(200).json({
       success: true,
+      lang,
       allAvailable,
       items: validationResults,
     });
@@ -221,7 +249,7 @@ const validateCart = async (req, res, next) => {
 };
 
 /**
- * @desc    Create new item
+ * @desc    Create new item (Manager only)
  * @route   POST /api/items
  * @access  Private (Manager only)
  */
@@ -229,21 +257,93 @@ const createItem = async (req, res, next) => {
   try {
     const {
       name,
+      nameEn,
+      nameAr,
       description,
+      descriptionEn,
+      descriptionAr,
       price,
       quantity,
       category,
       imageUrl,
+      image,
       images,
       material,
+      materialEn,
+      materialAr,
       dimensions,
       isFeatured,
     } = req.body;
 
-    if (!name || !description || price === undefined || quantity === undefined || !category || !imageUrl) {
+    const normalizedName = {
+      en: nameEn ? String(nameEn).trim() : (name && typeof name === 'object' ? String(name.en || '').trim() : String(name || '').trim()),
+      ar: nameAr ? String(nameAr).trim() : (name && typeof name === 'object' ? String(name.ar || '').trim() : ''),
+    };
+
+    const normalizedDesc = {
+      en: descriptionEn ? String(descriptionEn).trim() : (description && typeof description === 'object' ? String(description.en || '').trim() : (typeof description === 'string' ? description.trim() : '')),
+      ar: descriptionAr ? String(descriptionAr).trim() : (description && typeof description === 'object' ? String(description.ar || '').trim() : ''),
+    };
+
+    const normalizedMaterial = {
+      en: materialEn ? String(materialEn).trim() : (material && typeof material === 'object' ? String(material.en || '').trim() : (typeof material === 'string' ? material.trim() : 'Full-Grain Italian Calfskin / Gilded Brass')),
+      ar: materialAr ? String(materialAr).trim() : (material && typeof material === 'object' ? String(material.ar || '').trim() : 'جلد عجل إيطالي / نحاس مطلي بذهب'),
+    };
+
+    if (!normalizedName.en) {
       return res.status(400).json({
         success: false,
-        message: 'Name, description, price, quantity, category, and primary image are required.',
+        message: 'English item name is required.',
+      });
+    }
+
+    if (!normalizedName.ar) {
+      return res.status(400).json({
+        success: false,
+        message: 'Arabic item name is required.',
+      });
+    }
+
+    if (!normalizedDesc.en) {
+      return res.status(400).json({
+        success: false,
+        message: 'English item description is required.',
+      });
+    }
+
+    if (!normalizedDesc.ar) {
+      return res.status(400).json({
+        success: false,
+        message: 'Arabic item description is required.',
+      });
+    }
+
+    if (price === undefined || price === null) {
+      return res.status(400).json({
+        success: false,
+        message: 'Item price is required.',
+      });
+    }
+
+    if (quantity === undefined || quantity === null) {
+      return res.status(400).json({
+        success: false,
+        message: 'Item stock quantity is required.',
+      });
+    }
+
+    if (!category) {
+      return res.status(400).json({
+        success: false,
+        message: 'Category is required.',
+      });
+    }
+
+    const img = (imageUrl || image || '').trim();
+    if (!img) {
+      return res.status(400).json({
+        success: false,
+        message: 'Primary image URL is required.',
       });
     }
 
@@ -257,24 +357,27 @@ const createItem = async (req, res, next) => {
     }
 
     const item = await Item.create({
-      name: name.trim(),
-      description: description.trim(),
+      name: normalizedName,
+      description: normalizedDesc,
       price: Number(price),
       quantity: Number(quantity),
       category,
-      imageUrl: imageUrl.trim(),
+      imageUrl: img,
+      image: img,
       images: Array.isArray(images) ? images : [],
-      material: material ? material.trim() : undefined,
+      material: normalizedMaterial,
       dimensions: dimensions ? dimensions.trim() : undefined,
       isFeatured: Boolean(isFeatured),
     });
 
-    const populatedItem = await Item.findById(item._id).populate('category', 'name');
+    const populated = await Item.findById(item._id).populate('category');
+    const lang = getRequestedLanguage(req);
+    const localized = localizeItem(populated, lang, true);
 
     res.status(201).json({
       success: true,
       message: 'Item created successfully.',
-      data: populatedItem,
+      data: localized,
     });
   } catch (error) {
     next(error);
@@ -282,7 +385,7 @@ const createItem = async (req, res, next) => {
 };
 
 /**
- * @desc    Update item
+ * @desc    Update item (Manager only)
  * @route   PUT /api/items/:id
  * @access  Private (Manager only)
  */
@@ -290,13 +393,20 @@ const updateItem = async (req, res, next) => {
   try {
     const {
       name,
+      nameEn,
+      nameAr,
       description,
+      descriptionEn,
+      descriptionAr,
       price,
       quantity,
       category,
       imageUrl,
+      image,
       images,
       material,
+      materialEn,
+      materialAr,
       dimensions,
       isFeatured,
     } = req.body;
@@ -321,24 +431,61 @@ const updateItem = async (req, res, next) => {
       item.category = category;
     }
 
-    if (name) item.name = name.trim();
-    if (description) item.description = description.trim();
+    // Update names
+    const currentName = typeof item.name === 'object' ? item.name : { en: item.name, ar: item.name };
+    const newEnName = nameEn !== undefined ? String(nameEn).trim() : (name && typeof name === 'object' && name.en !== undefined ? String(name.en).trim() : currentName.en);
+    const newArName = nameAr !== undefined ? String(nameAr).trim() : (name && typeof name === 'object' && name.ar !== undefined ? String(name.ar).trim() : currentName.ar);
+
+    if (!newEnName || !newArName) {
+      return res.status(400).json({
+        success: false,
+        message: 'Both English and Arabic item names are required.',
+      });
+    }
+    item.name = { en: newEnName, ar: newArName };
+
+    // Update descriptions
+    const currentDesc = typeof item.description === 'object' ? item.description : { en: item.description || '', ar: item.description || '' };
+    const newEnDesc = descriptionEn !== undefined ? String(descriptionEn).trim() : (description && typeof description === 'object' && description.en !== undefined ? String(description.en).trim() : currentDesc.en);
+    const newArDesc = descriptionAr !== undefined ? String(descriptionAr).trim() : (description && typeof description === 'object' && description.ar !== undefined ? String(description.ar).trim() : currentDesc.ar);
+
+    if (!newEnDesc || !newArDesc) {
+      return res.status(400).json({
+        success: false,
+        message: 'Both English and Arabic item descriptions are required.',
+      });
+    }
+    item.description = { en: newEnDesc, ar: newArDesc };
+
+    // Update material
+    const currentMat = typeof item.material === 'object' ? item.material : { en: item.material || '', ar: item.material || '' };
+    const newEnMat = materialEn !== undefined ? String(materialEn).trim() : (material && typeof material === 'object' && material.en !== undefined ? String(material.en).trim() : currentMat.en);
+    const newArMat = materialAr !== undefined ? String(materialAr).trim() : (material && typeof material === 'object' && material.ar !== undefined ? String(material.ar).trim() : currentMat.ar);
+    item.material = { en: newEnMat, ar: newArMat };
+
     if (price !== undefined) item.price = Number(price);
     if (quantity !== undefined) item.quantity = Number(quantity);
-    if (imageUrl) item.imageUrl = imageUrl.trim();
+
+    if (imageUrl !== undefined || image !== undefined) {
+      const img = (imageUrl || image || '').trim();
+      item.imageUrl = img;
+      item.image = img;
+    }
+
     if (images !== undefined) item.images = Array.isArray(images) ? images : [];
-    if (material !== undefined) item.material = material.trim();
     if (dimensions !== undefined) item.dimensions = dimensions.trim();
     if (isFeatured !== undefined) item.isFeatured = Boolean(isFeatured);
 
     await item.save();
 
-    const populatedItem = await Item.findById(item._id).populate('category', 'name');
+    const populated = await Item.findById(item._id).populate('category');
+    const lang = getRequestedLanguage(req);
+    const localized = localizeItem(populated, lang, true);
 
     res.status(200).json({
       success: true,
       message: 'Item updated successfully.',
-      data: populatedItem,
+      data: localized,
     });
   } catch (error) {
     next(error);
@@ -365,7 +512,7 @@ const deleteItem = async (req, res, next) => {
 
     res.status(200).json({
       success: true,
-      message: `Item "${item.name}" was deleted successfully.`,
+      message: 'Item was deleted successfully.',
     });
   } catch (error) {
     next(error);
